@@ -8,7 +8,7 @@ class Serverless extends Base{
         super(context, environment)
     }
 
-    def stage() {
+    def body() {
         println("I am going to do something but i dont know what!")
         Log.info("Inside body of Serverless stage!")
     }

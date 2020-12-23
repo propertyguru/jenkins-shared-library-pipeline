@@ -1,52 +1,29 @@
-import org.pg.common.Parameters
+import org.pg.Pipeline
+import org.pg.common.BuildArgs
 
 def call(body) {
-    def Parameters = [
-        extendedChoice(
-            defaultValue: 'integration',
-            description: 'Select environments to deploy',
-            multiSelectDelimiter: ',',
-            name: 'ENVIRONMENT',
-            quoteValue: false,
-            saveJSONParameterToFile: false,
-            type: 'PT_CHECKBOX',
-            value: 'integration,staging,production',
-            visibleItemCount: 10
-        )
+
+
+//        def envParam = PGUtils.checkBox("ENVIRONMENT", // name
+//                "integration,staging,production", // values
+//                "integration", //default value
+//                0, //visible item cnt
+//                "Select environments to deploy")
+
+    def PipelineParams = [
+//                string(name: 'BRANCH', defaultValue: "master", description: 'Either put a branch name or tags/[tag-name]'),
+//                envParam,
+//                booleanParam(defaultValue: false, name: 'LOGLEVEL', description: 'Check this to enable debug logs'),
+//                booleanParam(defaultValue: true, name: 'TESTS', description: 'Check this to run api and UI tests')
     ]
 
-//    println(env.ENVIRONMENT)
+    properties([
+            [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']],
+            disableConcurrentBuilds(),
+            parameters(PipelineParams)
+    ])
 
-//    properties([
-//            [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator',
-//                                                          numToKeepStr: '15', artifactNumToKeepStr: '15']],
-//            disableConcurrentBuilds(),
-//            parameters(PipelineParams)
-//    ])
-//
-//    Log.setup(this)
-//    BuildArgs.setup(this)
-//    Blueprint.setup(this)
-//    PGbuild.setup(this)
-//    Git.setup(this)
-//
-//    // Clean up the changesets to remove jenkins-pipeline changesets
-//    currentBuild.changeSets.clear()
-//
-//    //setting builddescription
-//    if (!env.ghprbSourceBranch){
-//        currentBuild.description = "Deploying in ${ENVIRONMENT}"
-//    }
-//
-//    if (BuildArgs.component() == "guruland") {
-//        (new GurulandBuild(this, "integration")).execute()
-//    } else {
-//        (new Build(this, "integration")).execute()
-//    }
-//
-//    def envs = ['integration', 'staging', 'production']
-//    envs.each {
-//        (new Deploy(this, "${it}")).execute()
-//        (new PostDeploy(this, "${it}")).execute()
-//    }
+    BuildArgs.setup(this)
+    new Pipeline(this).execute()
+
 }
