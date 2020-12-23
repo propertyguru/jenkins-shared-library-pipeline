@@ -4,7 +4,7 @@ class Setup extends Base {
     def stage
 
     Setup(context, environment) {
-        super(context, environment, false)
+        super(context, environment)
         this.stage = "setup"
     }
 
@@ -17,8 +17,8 @@ class Setup extends Base {
 
         this.context.properties([
                 [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']],
-                disableConcurrentBuilds(),
-                parameters(PipelineParams)
+                this.context.disableConcurrentBuilds(),
+                this.context.parameters(PipelineParams)
         ])
     }
 

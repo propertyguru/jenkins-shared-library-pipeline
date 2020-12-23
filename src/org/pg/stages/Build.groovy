@@ -1,5 +1,6 @@
 package org.pg.stages
 
+import org.pg.common.Blueprint
 import org.pg.common.Log
 
 class Build extends Base {

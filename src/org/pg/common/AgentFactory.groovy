@@ -7,21 +7,18 @@ class AgentFactory {
     def context
     def environment
     def stage
-    def withAgent
 
-    AgentFactory(context, environment, stage, withAgent) {
+    AgentFactory(context, environment, stage) {
         this.context = context
         this.environment = environment
         this.stage = stage
-        this.withAgent = withAgent
     }
 
     def getAgent() {
-        if (this.withAgent) {
-            return new DockerAgent(this.context, this.environment, this.stage)
-        } else {
+        if (this.stage == "setup") {
             return new NoAgent(this.context, this.environment, this.stage)
         }
+        return new DockerAgent(this.context, this.environment, this.stage)
     }
 
 }

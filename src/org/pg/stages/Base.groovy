@@ -10,16 +10,14 @@ abstract class Base {
     abstract def stage
     abstract def skip = false
     def failed = false
-    def withAgent
 
-    Base(context, environment, withAgent=true) {
+    Base(context, environment) {
         this.context = context
         this.environment = environment
-        this.withAgent = withAgent
     }
 
     def execute() {
-        IAgent agent = new AgentFactory(this.context, this.environment, this.stage, this.withAgent).getAgent()
+        IAgent agent = new AgentFactory(this.context, this.environment, this.stage).getAgent()
         agent.withSlave({
             try {
                 this.body()

@@ -11,7 +11,7 @@ class DockerAgent implements IAgent {
     DockerAgent(context, environment, stage) {
         this.context = context
         this.image = "pgjenkins:slave1"
-        this.args = "-u root"
+        this.args = "-u root -v /etc/salt:/etc/salt -v /var/run/docker.sock:/var/run/docker.sock -v \$HOME/.ssh:/root/.ssh"
         this.environment = environment
         this.stage = stage
         this.label = "env:${this.environment}"
@@ -22,6 +22,9 @@ class DockerAgent implements IAgent {
             this.context.wrap([$class: 'TimestamperBuildWrapper']) {
                 this.context.wrap([$class: 'AnsiColorBuildWrapper']) {
                     this.context.wrap([$class: 'BuildUser']) {
+                        def hostname = this.context.sh(returnStdout: true, script: "hostname")
+                        this.args += " --hostname ${hostname}"
+
                         this.context.docker.image(this.image).inside(this.args) {
                             body()
                         }

@@ -5,12 +5,19 @@ import java.text.SimpleDateFormat
 @Singleton
 class Log {
     private static def context
-    private static String logLevel = "info"
     private static ArrayList<String> levels = ["debug", "info", "error"]
     private static String dateFormat = "dd.MM.yyyy|HH:mm:ss.SSS"
+    private static String logLevel = "info"
 
     static def setup(context) {
         this.context = context
+        if (this.context.LOGLEVEL == "true") {
+            logLevel = "debug"
+        }
+    }
+
+    static def level() {
+        return logLevel
     }
 
     static def info(String message) {

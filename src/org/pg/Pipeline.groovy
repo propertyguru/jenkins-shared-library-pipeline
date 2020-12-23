@@ -1,8 +1,5 @@
 package org.pg
 
-import org.pg.common.AgentFactory
-import org.pg.common.BuildArgs
-import org.pg.common.agents.IAgent
 import org.pg.stages.Checkout
 import org.pg.stages.Build
 import org.pg.stages.Deploy

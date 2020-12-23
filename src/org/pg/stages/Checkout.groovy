@@ -1,5 +1,7 @@
 package org.pg.stages
 
+import org.pg.common.Blueprint
+
 class Checkout extends Base {
     def stage
 
@@ -10,8 +12,9 @@ class Checkout extends Base {
 
     def body() {
         this.context.stage(this.stage) {
-            def branch = "master"
-            def repo = "" // write function
+            Blueprint.load()
+            def branch = this.context.BRANCH
+            def repo = Blueprint.repository()
             def extensions = [
                     [$class: 'UserIdentity' , name:'Jenkins', email:'jenkins@propertyguru.com.sg'],
                     [$class: 'LocalBranch', localBranch: "**"],
@@ -27,12 +30,12 @@ class Checkout extends Base {
                     doGenerateSubmoduleConfigurations: false,
                     gitTool: "git",
                     extensions: extensions,
-                    submoduleCfg: [],
                     userRemoteConfigs: [[
-                            credentialsId: '054e1b3a-dae1-4921-8d44-ad7c5b3bed11',
+                            credentialsId: 'github',
                             refspec: "+refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/remotes/origin/*",
                             url: "${repo}"
-                                        ]]
+                                        ]],
+                    submoduleCfg: [],
             ])
         }
     }
