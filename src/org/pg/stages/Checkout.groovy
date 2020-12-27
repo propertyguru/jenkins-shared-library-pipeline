@@ -1,20 +1,19 @@
 package org.pg.stages
 
 import org.pg.common.Blueprint
-import org.pg.common.Context
-import org.pg.common.slack.Slack
 
 class Checkout extends Base {
     String stage
+    String slackMessage
 
     Checkout(environment) {
         super(environment)
         this.stage = "checkout"
+        this.slackMessage = "Checking out code from github"
     }
 
     def body() {
         this.context.stage(this.stage) {
-            Slack.sendMessage("", "running", "Checking out code from github")
 //            checkout()
         }
     }

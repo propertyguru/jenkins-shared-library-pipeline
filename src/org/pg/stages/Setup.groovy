@@ -1,7 +1,7 @@
 package org.pg.stages
 
 class Setup extends Base {
-    def stage
+    String stage
 
     Setup(context, environment) {
         super(context, environment)

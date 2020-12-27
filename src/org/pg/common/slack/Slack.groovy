@@ -1,7 +1,6 @@
 package org.pg.common.slack
 
 import org.pg.common.Context
-import org.pg.common.Log
 
 @Singleton
 class Slack {
@@ -31,7 +30,7 @@ class Slack {
     static private def colors = [
             "running": "#fca326",
             "success": "good",
-            "failure": "danger"
+            "failed": "danger"
     ]
 
     static def setup() {
@@ -54,7 +53,7 @@ class Slack {
                     "elements": [
                             [
                                     "type": "mrkdwn",
-                                    "text": message
+                                    "text": " • " + message
                             ]
                     ]
             ])

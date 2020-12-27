@@ -1,19 +1,16 @@
 package org.pg.stages
 
-import org.pg.common.Blueprint
-import org.pg.common.Log
-import org.pg.common.slack.Slack
-
 class Build extends Base {
-    def stage
+    String stage
+    String slackMessage
 
     Build(environment) {
         super(environment)
         this.stage = "build"
+        this.slackMessage = "Building the code"
     }
 
     def body() {
-        Slack.sendMessage("", "running", "building the code")
 //        def deployPath = Blueprint.deployPath()
 //        Log.info("Changing directory ${deployPath}")
 //        this.context.dir(deployPath) {

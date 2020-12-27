@@ -4,13 +4,15 @@ import org.pg.common.AgentFactory
 import org.pg.common.Context
 import org.pg.common.Log
 import org.pg.common.agents.IAgent
+import org.pg.common.slack.Slack
 
 abstract class Base {
     def context
-    def environment
-    abstract def stage
-    abstract def skip = false
-    def failed = false
+    String environment
+    abstract String stage
+    abstract Boolean skip = false
+    Boolean failed = false
+    abstract String slackMessage
 
     Base(environment) {
         this.context = Context.get()
@@ -22,10 +24,13 @@ abstract class Base {
         agent.withSlave({
             try {
                 this.context.stage("${stage}") {
+                    Slack.sendMessage("", "running", this.slackMessage)
                     this.body()
+                    Slack.sendMessage("", "success", this.slackMessage)
                 }
             } catch (Exception e) {
                 failed = true
+                Slack.sendMessage("", "failed", this.slackMessage)
                 throw e
             } finally {
                 Log.info("Running final block")
