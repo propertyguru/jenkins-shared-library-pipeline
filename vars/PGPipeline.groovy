@@ -1,6 +1,7 @@
 import org.pg.Pipeline
 import org.pg.common.Blueprint
 import org.pg.common.BuildArgs
+import org.pg.common.Context
 import org.pg.common.Log
 import org.pg.common.slack.Slack
 
@@ -44,11 +45,12 @@ def call(body) {
             parameters(PipelineParams)
     ])
 
-    Log.setup(this)
-    BuildArgs.setup(this)
-    Blueprint.setup(this)
-    Slack.setup(this)
+    Context.set(this)
+    Log.setup()
+    BuildArgs.setup()
+    Blueprint.setup()
+    Slack.setup()
 
-    (new Pipeline(this)).execute()
+    (new Pipeline()).execute()
 
 }

@@ -6,3 +6,6 @@ build
 
 # Ignore IntelliJ project-specific cache directory
 .idea
+
+# ignore for now
+slack/

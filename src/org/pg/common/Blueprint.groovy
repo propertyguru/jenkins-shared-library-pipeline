@@ -6,7 +6,7 @@ class Blueprint {
     def data
 
     static def setup(context) {
-        this.context = context
+        this.context = Context.get()
     }
 
     static def repository() {

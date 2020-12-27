@@ -1,6 +1,7 @@
 package org.pg.stages
 
 import org.pg.common.AgentFactory
+import org.pg.common.Context
 import org.pg.common.Log
 import org.pg.common.agents.IAgent
 
@@ -11,16 +12,18 @@ abstract class Base {
     abstract def skip = false
     def failed = false
 
-    Base(context, environment) {
-        this.context = context
+    Base(environment) {
+        this.context = Context.get()
         this.environment = environment
     }
 
     def execute() {
-        IAgent agent = new AgentFactory(this.context, this.environment, this.stage).getAgent()
+        IAgent agent = new AgentFactory(this.environment, this.stage).getAgent()
         agent.withSlave({
             try {
-                this.body()
+                this.context.stage("${stage}") {
+                    this.body()
+                }
             } catch (Exception e) {
                 failed = true
                 throw e

@@ -1,5 +1,7 @@
 package org.pg.common.agents
 
+import org.pg.common.Context
+
 class DockerAgent implements IAgent {
     def context
     def image
@@ -8,8 +10,8 @@ class DockerAgent implements IAgent {
     def environment
     def stage
 
-    DockerAgent(context, environment, stage) {
-        this.context = context
+    DockerAgent(environment, stage) {
+        this.context = Context.get()
         this.image = "pgjenkins:slave1"
         this.args = "-u root -v /etc/salt:/etc/salt -v /var/run/docker.sock:/var/run/docker.sock -v \$HOME/.ssh:/root/.ssh"
         this.environment = environment

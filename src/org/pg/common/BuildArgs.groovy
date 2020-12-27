@@ -4,8 +4,8 @@ package org.pg.common
 class BuildArgs {
     private static def context
 
-    static def setup(context) {
-        this.context = context
+    static def setup() {
+        this.context = Context.get()
     }
 
     static def jobName() {
@@ -14,7 +14,7 @@ class BuildArgs {
 
     static def component() {
         def component
-        def jobName = BuildArgs.jobName()
+        def jobName = jobName()
         if (jobName.startsWith("devtools-")) {
             return jobName.split("/")[0].split('-')[1]
         } else if (jobName.startsWith("devtoolsqa-")) {
@@ -24,7 +24,7 @@ class BuildArgs {
 
     static def subcomponent() {
         def subcomponent
-        def jobName = BuildArgs.jobName()
+        def jobName = jobName()
         if (jobName.startsWith("devtools-")) {
             return jobName.split("/")[1]
         } else if (jobName.startsWith("devtoolsqa-")) {
@@ -33,9 +33,9 @@ class BuildArgs {
     }
 
     static def jobType() {
-        if (BuildArgs.jobName().startsWith("devtools-")) {
-            return BuildArgs.jobName().split("/")[-1]
-        } else if (BuildArgs.jobName().startsWith("devtoolsqa-")) {
+        if (jobName().startsWith("devtools-")) {
+            return jobName().split("/")[-1]
+        } else if (jobName().startsWith("devtoolsqa-")) {
             return "qa"
         }
     }

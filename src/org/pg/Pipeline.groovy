@@ -1,26 +1,20 @@
 package org.pg
 
-import org.pg.common.slack.Slack
 import org.pg.stages.Checkout
 import org.pg.stages.Build
 import org.pg.stages.Deploy
-import org.pg.stages.Setup
 
 class Pipeline {
 
-    private def context
-
-    Pipeline(context) {
-        this.context = context
-    }
+    Pipeline() {}
 
     def execute() {
-        new Checkout(this.context, "integration").execute()
-        new Build(this.context, "integration").execute()
+        new Checkout("integration").execute()
+        new Build("integration").execute()
 
-        new Deploy(this.context, "integration").execute()
-        new Deploy(this.context, "staging").execute()
-        new Deploy(this.context, "production").execute()
+        new Deploy("integration").execute()
+        new Deploy("staging").execute()
+        new Deploy("production").execute()
     }
 
 }

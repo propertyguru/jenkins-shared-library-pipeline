@@ -9,9 +9,9 @@ class Log {
     private static String dateFormat = "dd.MM.yyyy|HH:mm:ss.SSS"
     private static String logLevel = "info"
 
-    static def setup(context) {
-        this.context = context
-        if (this.context.LOGLEVEL == "true") {
+    static def setup() {
+        context = Context.get()
+        if (context.LOGLEVEL == "true") {
             logLevel = "debug"
         }
     }
