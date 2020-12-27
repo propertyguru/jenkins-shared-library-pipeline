@@ -28,9 +28,9 @@ class Slack {
     ]
 
     static private def colors = [
-            "running": "#fca326",
-            "success": "good",
-            "failed": "danger"
+            "running": ":waiting:",
+            "success": ":white_check_mark:",
+            "failed": ":x:"
     ]
 
     static def setup() {
@@ -53,14 +53,13 @@ class Slack {
                     "elements": [
                             [
                                     "type": "mrkdwn",
-                                    "text": " • " + message
+                                    "text": colors[status] + message
                             ]
                     ]
             ])
         }
         this.context.slackSend(
                 channel: channels,
-                color: colors[status],
                 timestamp: timestamp,
                 blocks: block,
                 tokenCredentialId: 'slack-bot-token'
