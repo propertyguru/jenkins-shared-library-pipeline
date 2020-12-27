@@ -3,14 +3,30 @@ package org.pg.common.slack
 import org.pg.common.Context
 import org.pg.common.Log
 
-
 @Singleton
 class Slack {
     static private def context
-    static private String userID
-    static private ArrayList messageHistory
-    static private String channels
-    static private String timestamp
+    static private def channelId
+    static private def timestamp
+    static private def block = [
+            [
+                    "type": "header",
+                    "text": [
+                            "type": "plain_text",
+                            "text": "ads-product",
+                            "emoji": true
+                    ]
+            ],
+            [
+                    "type": "context",
+                    "elements": [
+                            [
+                                    "type": "mrkdwn",
+                                    "text": "Job initiated: Building *master* branch and deploying to *integration*"
+                            ]
+                    ]
+            ]
+    ]
 
     static private def colors = [
             "running": "#fca326",
@@ -20,30 +36,36 @@ class Slack {
 
     static def setup() {
         this.context = Context.get()
-        channels = this.context.SLACK_ID
-        timestamp = this.context.TIMESTAMP
-        messageHistory = []
+        def slackID = this.context.slackUserIdFromEmail email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token'
+        def slackResponse = sendMessage(slackID, "running", "")
+        channelId = slackResponse.getChannelId()
+        timestamp = slackResponse.getTs()
     }
 
     // sendMessage works with channels and users.
     // for users, simply use @username.
-    static def sendMessage(String message, String status="success") {
-        if (messageHistory.size() > 0) {
-            Log.info("Current timestamp is ${timestamp}")
-            def response = messageHistory.getAt(0)
-            Log.info("Current timestamp is ${timestamp}")
-            timestamp = response.getTs()
-            Log.info("Timestamp changed to ${timestamp}")
+    static def sendMessage(String channels, String status, String message) {
+        if (channels=="") {
+            channels = channelId
         }
-        def slackResponse = this.context.slackSend(
+        if (message != "") {
+            block.add([
+                    "type": "context",
+                    "elements": [
+                            [
+                                    "type": "mrkdwn",
+                                    "text": message
+                            ]
+                    ]
+            ])
+        }
+        this.context.slackSend(
                 channel: channels,
-                message: message,
                 color: colors[status],
                 timestamp: timestamp,
+                blocks: block,
                 tokenCredentialId: 'slack-bot-token'
         )
-        messageHistory.add(0, slackResponse)
     }
 
 }
-

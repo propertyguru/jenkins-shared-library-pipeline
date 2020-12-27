@@ -14,7 +14,7 @@ class Checkout extends Base {
 
     def body() {
         this.context.stage(this.stage) {
-            Slack.sendMessage("Checking out code from github")
+            Slack.sendMessage("", "running", "Checking out code from github")
 //            checkout()
         }
     }

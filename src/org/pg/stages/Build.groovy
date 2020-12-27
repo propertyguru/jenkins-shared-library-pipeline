@@ -13,7 +13,7 @@ class Build extends Base {
     }
 
     def body() {
-        Slack.sendMessage("Building code")
+        Slack.sendMessage("", "running", "building the code")
 //        def deployPath = Blueprint.deployPath()
 //        Log.info("Changing directory ${deployPath}")
 //        this.context.dir(deployPath) {

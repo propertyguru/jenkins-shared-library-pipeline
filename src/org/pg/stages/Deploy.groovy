@@ -11,7 +11,7 @@ class Deploy extends Base {
     }
 
     def body() {
-        Slack.sendMessage("Deploying to ${this.environment}")
+        Slack.sendMessage("", "running","Deploying to ${this.environment}")
     }
 
 }
