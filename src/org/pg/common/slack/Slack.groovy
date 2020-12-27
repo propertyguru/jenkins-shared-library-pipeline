@@ -8,23 +8,8 @@ class Slack {
     static private def channelId
     static private def timestamp
     static private def block = [
-            [
-                    "type": "header",
-                    "text": [
-                            "type": "plain_text",
-                            "text": "ads-product",
-                            "emoji": true
-                    ]
-            ],
-            [
-                    "type": "context",
-                    "elements": [
-                            [
-                                    "type": "mrkdwn",
-                                    "text": "Job initiated: Building *master* branch and deploying to *integration*"
-                            ]
-                    ]
-            ]
+            Block.header("ads-product"),
+            Block.markdown("Job initiated: Building *master* branch and deploying to *integration*")
     ]
 
     static private def colors = [
