@@ -10,7 +10,6 @@ class Pipeline {
     Pipeline() {}
 
     def execute() {
-        Slack.sendMessage()
         new Checkout("integration").execute()
         new Build("integration").execute()
 
