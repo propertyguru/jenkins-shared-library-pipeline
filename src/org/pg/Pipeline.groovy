@@ -1,5 +1,6 @@
 package org.pg
 
+import org.pg.common.slack.Slack
 import org.pg.stages.Checkout
 import org.pg.stages.Build
 import org.pg.stages.Deploy
@@ -14,7 +15,6 @@ class Pipeline {
     }
 
     def execute() {
-        new Setup(this.context, "integration").execute()
         new Checkout(this.context, "integration").execute()
         new Build(this.context, "integration").execute()
 

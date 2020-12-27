@@ -24,6 +24,7 @@ dependencies {
     testImplementation group: 'com.lesfurets', name: 'jenkins-pipeline-unit', version: '1.1'
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-aggregator', version: '2.6'
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-basic-steps', version: '2.23'
+    testImplementation group: 'org.jenkins-ci.plugins', name: 'hidden-parameter', version: '0.0.4'
 }
 
 sourceSets {

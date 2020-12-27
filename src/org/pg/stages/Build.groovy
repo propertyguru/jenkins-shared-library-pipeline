@@ -2,6 +2,7 @@ package org.pg.stages
 
 import org.pg.common.Blueprint
 import org.pg.common.Log
+import org.pg.common.slack.Slack
 
 class Build extends Base {
     def stage
@@ -12,6 +13,7 @@ class Build extends Base {
     }
 
     def body() {
+        Slack.sendMessage("Building code")
         def deployPath = Blueprint.deployPath()
         Log.info("Changing directory ${deployPath}")
         this.context.dir(deployPath) {
