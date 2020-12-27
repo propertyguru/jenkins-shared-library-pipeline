@@ -1,6 +1,5 @@
 package org.pg.stages
 
-import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 import org.pg.common.AgentFactory
 import org.pg.common.Context
 import org.pg.common.Log
@@ -23,21 +22,16 @@ abstract class Base {
     def execute() {
         IAgent agent = new AgentFactory(this.environment, this.stage).getAgent()
         agent.withSlave({
+            def slackId
             try {
                 this.context.stage("${stage}") {
-                    if (this.skip == false) {
-                        Slack.sendMessage("", "running", this.slackMessage)
-                        this.body()
-                        Slack.sendMessage("", "success", this.slackMessage)
-                    } else {
-                        Log.info("Skipping ${this.stage}")
-                        Slack.sendMessage("", "success", "Skipping ${stage}")
-                        Utils.markStageSkippedForConditional(stage)
-                    }
+                    slackId = Slack.sendMessage("", "running", this.slackMessage)
+                    this.body()
+                    Slack.sendMessage("", "success", this.slackMessage, slackId)
                 }
             } catch (Exception e) {
                 failed = true
-                Slack.sendMessage("", "failed", this.slackMessage)
+                Slack.sendMessage("", "failed", this.slackMessage, slackId)
                 throw e
             } finally {
                 Log.info("Running final block")
