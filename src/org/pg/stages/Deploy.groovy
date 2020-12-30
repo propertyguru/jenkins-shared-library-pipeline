@@ -1,8 +1,11 @@
 package org.pg.stages
 
+import org.pg.common.slack.Message
+import org.pg.common.slack.Slack
+
 class Deploy extends Base {
     String stage
-    String slackMessage
+    String description
     Boolean skip = false
 
     Deploy(environment) {
@@ -11,10 +14,11 @@ class Deploy extends Base {
             skip = true
         }
         this.stage = "deploy - ${this.environment}"
-        this.slackMessage = "Deploying to ${this.environment}"
+        this.description = "Deploying to ${this.environment}"
     }
 
     def body() {
+        Slack.send(new Message("step", "starting deployment of service."))
     }
 
 }

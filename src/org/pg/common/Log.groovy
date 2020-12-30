@@ -20,11 +20,11 @@ class Log {
         return logLevel
     }
 
-    static def info(String message) {
-        logMessage(logLevel, message)
+    static def info(def message) {
+        logMessage("info", message)
     }
 
-    private static logMessage(String level, message){
+    private static logMessage(String level, def message){
         if(levels.indexOf(level) >= levels.indexOf(logLevel)){
             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat)
             String date = formatter.format(new Date())

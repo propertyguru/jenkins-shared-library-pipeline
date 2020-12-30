@@ -1,13 +1,16 @@
 package org.pg.stages
 
+import org.pg.common.slack.Message
+import org.pg.common.slack.Slack
+
 class Build extends Base {
     String stage
-    String slackMessage
+    String description
 
     Build(environment) {
         super(environment)
         this.stage = "build"
-        this.slackMessage = "Building the code"
+        this.description = "Building the code"
     }
 
     def body() {
@@ -15,9 +18,12 @@ class Build extends Base {
 //        Log.info("Changing directory ${deployPath}")
 //        this.context.dir(deployPath) {
 //            this.context.stage('build') {
+        Slack.send(new Message("step", "Stashing dirs"))
 //                stashDir("infra", "${Blueprint.appConfig()}/*.*")
 //                stash("pgbuild", Blueprint.pgbuild())
+        Slack.send(new Message("step", "Running pre-build steps from pgbuild."))
 //                PGbuild.instance.executeSteps("pre-build")
+        Slack.send(new Message("step", "Running build steps from pgbuild."))
 //                PGbuild.instance.executeSteps("build")
 //            }
 

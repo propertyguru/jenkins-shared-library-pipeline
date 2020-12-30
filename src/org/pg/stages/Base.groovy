@@ -4,7 +4,9 @@ import org.pg.common.AgentFactory
 import org.pg.common.Context
 import org.pg.common.Log
 import org.pg.common.agents.IAgent
+import org.pg.common.slack.Message
 import org.pg.common.slack.Slack
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 abstract class Base {
     def context
@@ -12,7 +14,7 @@ abstract class Base {
     abstract String stage
     abstract Boolean skip = false
     Boolean failed = false
-    abstract String slackMessage
+    abstract String description
 
     Base(environment) {
         this.context = Context.get()
@@ -20,23 +22,31 @@ abstract class Base {
     }
 
     def execute() {
-        IAgent agent = new AgentFactory(this.environment, this.stage).getAgent()
-        agent.withSlave({
-            def slackId
-            try {
-                this.context.stage("${stage}") {
-                    slackId = Slack.sendMessage("", "running", this.slackMessage)
-                    this.body()
-                    Slack.sendMessage("", "success", this.slackMessage, slackId)
+        if (skip == false) {
+            def slackMessage = new Message("stage", this.description, "running")
+            Slack.send(slackMessage)
+            Slack.send(new Message("step", "Getting node to run the stage"))
+            IAgent agent = new AgentFactory(this.environment, this.stage).getAgent()
+            agent.withSlave({
+                try {
+                    this.context.stage("${stage}") {
+                        this.body()
+                        slackMessage.update("success")
+                        Slack.send()
+                    }
+                } catch (Exception e) {
+                    failed = true
+                    slackMessage.update("failed")
+                    Slack.send()
+                    throw e
+                } finally {
+                    Log.info("Running final block")
                 }
-            } catch (Exception e) {
-                failed = true
-                Slack.sendMessage("", "failed", this.slackMessage, slackId)
-                throw e
-            } finally {
-                Log.info("Running final block")
-            }
-        })
+            })
+        } else {
+            Log.info("Skipping ${this.stage}")
+            Utils.markStageSkippedForConditional(this.stage)
+        }
     }
 
     abstract def body()

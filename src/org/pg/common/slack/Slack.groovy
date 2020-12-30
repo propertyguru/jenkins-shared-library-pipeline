@@ -1,75 +1,80 @@
 package org.pg.common.slack
 
 import org.pg.common.Context
+import org.pg.common.Log
 
 @Singleton
 class Slack {
     static private def context
-    static private def channelId
-    static private def timestamp
-    static private def block = [
-            [
-                    "type": "header",
-                    "text": [
-                            "type": "plain_text",
-                            "text": "ads-product",
-                            "emoji": true
-                    ]
-            ],
-            [
-                    "type": "context",
-                    "elements": [
-                            [
-                                    "type": "mrkdwn",
-                                    "text": "Job initiated: Building *master* branch and deploying to *integration*"
-                            ]
-                    ]
-            ]
-    ]
-
-    static private def colors = [
-            "running": ":waiting:",
-            "success": ":white_check_mark:",
-            "failed": ":x:"
-    ]
+    static private String buildUserID
+    static private String buildChannelID
+    static private ArrayList<Message> messages
+    static private def slackResponse
 
     static def setup() {
-        this.context = Context.get()
-        def slackID = this.context.slackUserIdFromEmail email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token'
-        def slackResponse = sendMessage(slackID, "running", "")
-        channelId = slackResponse.getChannelId()
-        timestamp = slackResponse.getTs()
+        context = Context.get()
+        messages = [
+                new Message("heading", "ads-product"),
+                new Message("subheading", "Job initiated: Building *master* branch and deploying to *integration*")
+        ]
+        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
+        def blocks = buildBlocks()
+        Log.info(blocks)
+        slackResponse = sendMessage(buildUserID, blocks)
+        Log.info(slackResponse)
+        buildChannelID = slackResponse.getChannelId()
+    }
+
+    static def send(Message msg=null) {
+        // append msg
+        if (msg != null) {
+            messages.add(msg)
+        }
+        // build the block json array
+        def blocks = buildBlocks()
+        Log.info(blocks)
+        // get timestamp from old slackResponse
+        String timestamp = slackResponse.getTs()
+        // send message and save response to slack response variable
+        Log.info(slackResponse)
+        slackResponse = sendMessage(buildChannelID, blocks, timestamp)
+    }
+
+    private static def buildBlocks() {
+        def blocks = []
+        messages.each { msg ->
+            blocks.add(msg.format())
+        }
+        return blocks
     }
 
     // sendMessage works with channels and users.
     // for users, simply use @username.
-    static def sendMessage(String channels, String status, String message, Integer index=null) {
-        if (channels=="") {
-            channels = channelId
-        }
-        if (message != "") {
-            if (index != null) {
-                block.remove(index)
-            } else {
-                index = block.size()
-            }
-            block.add([
-                    "type": "context",
-                    "elements": [
-                            [
-                                    "type": "mrkdwn",
-                                    "text": colors[status] + message
-                            ]
-                    ]
-            ])
-        }
-        this.context.slackSend(
+    // @todo replace def with block Class type
+    private static def sendMessage(String channels, def blocks, String timestamp = "") {
+        Log.info("Block class type: ${blocks.getClass()}")
+        context.slackSend(
                 channel: channels,
                 timestamp: timestamp,
-                blocks: block,
+                blocks: blocks,
                 tokenCredentialId: 'slack-bot-token'
         )
-        return index
     }
 
 }
+
+//if (message != "") {
+//    def callingClass = ReflectionUtils.getCallingClass()
+//    if (callingClass.isAssignableFrom(Base)) {
+//
+//    }
+//    block.add([
+//            "type": "context",
+//            "elements": [
+//                    [
+//                            "type": "mrkdwn",
+//                            "text": colors[status] + message
+//                    ]
+//            ]
+//    ])
+//}
