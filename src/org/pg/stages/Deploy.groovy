@@ -19,7 +19,9 @@ class Deploy extends Base {
     }
 
     def body() {
-        Slack.send(new Message("step", "starting deployment of service."))
+        this.step("starting deployment of service.", {
+            echo "I am good here!"
+        })
     }
 
 }

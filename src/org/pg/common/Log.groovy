@@ -28,7 +28,7 @@ class Log {
         if(levels.indexOf(level) >= levels.indexOf(logLevel)){
             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat)
             String date = formatter.format(new Date())
-            println "${date} [${level.toUpperCase()}] ${message}"
+            context.println "${date} [${level.toUpperCase()}] ${message}"
         }
     }
 }

@@ -9,7 +9,6 @@ class Pipeline {
     Pipeline() {}
 
     def execute() {
-        new Checkout("integration").execute()
         new Build("integration").execute()
 
         new Deploy("integration").execute()

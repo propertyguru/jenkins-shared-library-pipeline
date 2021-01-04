@@ -5,18 +5,19 @@ import org.pg.common.Log
 class Message {
     private String type
     private String text
+    private ArrayList<String> fields
     private String status
     private Map<String, String> emoji = [
             "running": ":waiting:",
             "success": ":white_check_mark:",
-            "failed": ":x:",
-            "skipped": ":black_circle:"
+            "failed": ":x:"
     ]
 
-    Message(String type, String text, String status="running") {
+    Message(String type, String text="", String status="running", ArrayList<String> fields=[]) {
         this.type = type
         this.text = text
         this.status = status
+        this.fields = fields
     }
 
     // @todo princetyagi: maybe change the format function
@@ -26,10 +27,20 @@ class Message {
             return headerText(this.text)
         } else if (this.type == "subheading") {
             return markdownText(this.text)
+        } else if (this.type == "sectionWithFields") {
+            return sectionWithFields(this.fields)
+        } else if (this.type == "divider") {
+            return divider()
         } else if (this.type == "stage") {
-            return markdownText(emoji[this.status] + " *" + this.text + "*")
+            if (this.status == "skipped") {
+                return markdownText("~*" + this.text + "*~")
+            } else {
+                return markdownText(emoji[this.status] + " *" + this.text + "*")
+            }
         } else if (this.type == "step") {
-            return markdownText("• " + this.text)
+            return markdownText("• "  + this.text)
+        } else if (this.type == "error") {
+            return markdownText("```" + this.text + "```")
         } else {
             Log.info("Invalid type provided")
             // @todo princetyagi: throw error here or handle this case properly
@@ -41,14 +52,19 @@ class Message {
         this.status = status
     }
 
+    def updateStep(text) {
+        if (this.text != "") {
+            this.text += "\n"
+        }
+        this.text += "• ${text}"
+    }
+
     private static def markdownText(text) {
         return [
-                "type": "context",
-                "elements": [
-                        [
-                                "type": "mrkdwn",
-                                "text": text
-                        ]
+                "type": "section",
+                "text": [
+                        "type": "mrkdwn",
+                        "text": text
                 ]
         ]
     }
@@ -61,6 +77,26 @@ class Message {
                         "text": text,
                         "emoji": true
                 ]
+        ]
+    }
+
+    private static def sectionWithFields(ArrayList<String> fields) {
+        ArrayList f = []
+        fields.each { field ->
+            f.add([
+                "type": "mrkdwn",
+                "text": field
+            ])
+        }
+        return [
+                "type": "section",
+                "fields": f
+        ]
+    }
+
+    private static def divider() {
+        return [
+                "type": "divider"
         ]
     }
 

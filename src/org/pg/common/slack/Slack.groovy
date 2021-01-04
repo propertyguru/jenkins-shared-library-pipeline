@@ -1,5 +1,6 @@
 package org.pg.common.slack
 
+import org.pg.common.BuildArgs
 import org.pg.common.Context
 import org.pg.common.Log
 
@@ -15,14 +16,18 @@ class Slack {
         context = Context.get()
         messages = [
                 new Message("heading", "ads-product"),
-                new Message("subheading", "Job initiated: Building *master* branch and deploying to *integration*")
+                new Message("sectionWithFields", "", "running", [
+                        "*Started By:*\n${BuildArgs.buildUser()}",
+                        "*Branch:*\n${context.BRANCH}",
+                        "*Environment:*\n${context.ENVIRONMENT}",
+                        "*Jenkins URL:*\n${BuildArgs.buildURL()}"
+                ] as ArrayList<String>),
+                new Message("divider")
         ]
-//        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
-        buildUserID = slack_id
+        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
+        Log.info(buildUserID)
         def blocks = buildBlocks()
-        Log.info(blocks)
         slackResponse = sendMessage(buildUserID, blocks)
-        Log.info(slackResponse)
         buildChannelID = slackResponse.getChannelId()
     }
 
@@ -33,11 +38,9 @@ class Slack {
         }
         // build the block json array
         def blocks = buildBlocks()
-        Log.info(blocks)
         // get timestamp from old slackResponse
         String timestamp = slackResponse.getTs()
         // send message and save response to slack response variable
-        Log.info(slackResponse)
         slackResponse = sendMessage(buildChannelID, blocks, timestamp)
     }
 
@@ -51,9 +54,7 @@ class Slack {
 
     // sendMessage works with channels and users.
     // for users, simply use @username.
-    // @todo replace def with block Class type
-    private static def sendMessage(String channels, def blocks, String timestamp = "") {
-        Log.info("Block class type: ${blocks.getClass()}")
+    private static def sendMessage(String channels, ArrayList blocks, String timestamp = "") {
         context.slackSend(
                 channel: channels,
                 timestamp: timestamp,

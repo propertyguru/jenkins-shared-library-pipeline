@@ -4,16 +4,15 @@ package org.pg.common
 class BuildArgs {
     private static def context
 
-    static def setup() {
-        this.context = Context.get()
+    static void setup() {
+        context = Context.get()
     }
 
-    static def jobName() {
-        return this.context.env.JOB_NAME
+    static String jobName() {
+        return context.env.JOB_NAME
     }
 
-    static def component() {
-        def component
+    static String component() {
         def jobName = jobName()
         if (jobName.startsWith("devtools-")) {
             return jobName.split("/")[0].split('-')[1]
@@ -22,8 +21,7 @@ class BuildArgs {
         }
     }
 
-    static def subcomponent() {
-        def subcomponent
+    static String subcomponent() {
         def jobName = jobName()
         if (jobName.startsWith("devtools-")) {
             return jobName.split("/")[1]
@@ -32,12 +30,20 @@ class BuildArgs {
         }
     }
 
-    static def jobType() {
+    static String jobType() {
         if (jobName().startsWith("devtools-")) {
             return jobName().split("/")[-1]
         } else if (jobName().startsWith("devtoolsqa-")) {
             return "qa"
         }
+    }
+
+    static String buildURL() {
+        return context.env.BUILD_URL
+    }
+
+    static String buildUser() {
+        return "Prince Tyagi"
     }
 
 }

@@ -3,16 +3,16 @@ package org.pg.common
 import com.cloudbees.groovy.cps.NonCPS
 
 @Singleton
-class Context {
-    private static def context
+class Context implements Serializable {
+    private static def _context
 
     static def set(context) {
-        this.context = context
+        this._context = context
     }
 
     @NonCPS
     static def get() {
-        this.context
+        this._context
     }
 
 }
