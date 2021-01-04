@@ -10,7 +10,8 @@ class Deploy extends Base {
 
     Deploy(environment) {
         super(environment)
-        if (!this.environment in this.context.ENVIRONMENT.tokenize(',')) {
+        // set skip variable to true
+        if (!(this.environment in this.context.ENVIRONMENT.tokenize(','))) {
             skip = true
         }
         this.stage = "deploy - ${this.environment}"

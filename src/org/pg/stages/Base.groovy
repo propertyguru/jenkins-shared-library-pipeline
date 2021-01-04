@@ -22,7 +22,7 @@ abstract class Base {
     }
 
     def execute() {
-        if (skip == false) {
+        if (!skip) {
             def slackMessage = new Message("stage", this.description, "running")
             Slack.send(slackMessage)
             Slack.send(new Message("step", "Getting node to run the stage"))
@@ -46,6 +46,7 @@ abstract class Base {
         } else {
             Log.info("Skipping ${this.stage}")
             Utils.markStageSkippedForConditional(this.stage)
+            Slack.send(new Message("stage", this.description, "skipped"))
         }
     }
 

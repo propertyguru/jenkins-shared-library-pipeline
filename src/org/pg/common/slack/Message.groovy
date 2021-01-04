@@ -9,7 +9,8 @@ class Message {
     private Map<String, String> emoji = [
             "running": ":waiting:",
             "success": ":white_check_mark:",
-            "failed": ":x:"
+            "failed": ":x:",
+            "skipped": ":red_circle:"
     ]
 
     Message(String type, String text, String status="running") {
@@ -28,7 +29,7 @@ class Message {
         } else if (this.type == "stage") {
             return markdownText(emoji[this.status] + " *" + this.text + "*")
         } else if (this.type == "step") {
-            return markdownText("`• " + this.text + "`")
+            return markdownText("• " + this.text)
         } else {
             Log.info("Invalid type provided")
             // @todo princetyagi: throw error here or handle this case properly
