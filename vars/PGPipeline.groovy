@@ -34,8 +34,7 @@ def call(body) {
                     name: 'TESTS',
                     description: 'Check this to run api and UI tests'
             ),
-            [$class: 'WHideParameterDefinition', defaultValue: '', description: 'Slack ID of user initiating the job', name: 'SLACK_ID'],
-            [$class: 'WHideParameterDefinition', defaultValue: '', description: 'Timestamp of the first message sent on slack', name: 'TIMESTAMP']
+            [$class: 'WHideParameterDefinition', defaultValue: '', description: 'Slack ID of user initiating the job', name: 'SLACK_ID']
     ]
 
     properties([
@@ -49,7 +48,7 @@ def call(body) {
     Log.setup()
     BuildArgs.setup()
     Blueprint.setup()
-    Slack.setup()
+    Slack.setup(SLACK_ID)
 
     (new Pipeline()).execute()
 

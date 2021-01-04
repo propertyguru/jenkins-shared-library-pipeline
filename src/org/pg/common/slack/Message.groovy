@@ -10,7 +10,7 @@ class Message {
             "running": ":waiting:",
             "success": ":white_check_mark:",
             "failed": ":x:",
-            "skipped": ":red_circle:"
+            "skipped": ":black_circle:"
     ]
 
     Message(String type, String text, String status="running") {

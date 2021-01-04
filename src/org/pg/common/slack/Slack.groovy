@@ -11,13 +11,14 @@ class Slack {
     static private ArrayList<Message> messages
     static private def slackResponse
 
-    static def setup() {
+    static def setup(slack_id) {
         context = Context.get()
         messages = [
                 new Message("heading", "ads-product"),
                 new Message("subheading", "Job initiated: Building *master* branch and deploying to *integration*")
         ]
-        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
+//        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
+        buildUserID = slack_id
         def blocks = buildBlocks()
         Log.info(blocks)
         slackResponse = sendMessage(buildUserID, blocks)

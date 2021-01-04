@@ -3,8 +3,8 @@ package org.pg.stages
 class Setup extends Base {
     String stage
 
-    Setup(context, environment) {
-        super(context, environment)
+    Setup(context) {
+        super(context)
         this.stage = "setup"
     }
 
