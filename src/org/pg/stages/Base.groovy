@@ -58,65 +58,14 @@ abstract class Base implements Serializable {
             Slack.send()
             closure()
         } catch (Exception e) {
-            Slack.send(new Message("divider"))
             Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
-            Slack.send(new Message("error", "STACK TRACE: ${e.getStackTrace().join('\n')}}"))
             Log.info("Prince Debugging: ${e.getStackTrace().join('\n')}")
             this.context.error("${e.toString()}")
-//            throw e
         } finally {
             Log.info("Running final of step try/catch")
         }
     }
 
     abstract def body()
-
-//    def before() {
-//        for (interceptor in interceptors) {
-//            try {
-//                interceptor.before()
-//            } catch (Exception e) {
-//                throw e
-//            }
-//        }
-//    }
-//
-//    def after() {
-//        for (interceptor in interceptors) {
-//            try {
-//                interceptor.after()
-//            } catch (Exception e) {
-//                throw e
-//            }
-//        }
-//    }
-//
-//    def always() {
-//        for (interceptor in interceptors) {
-//            try {
-//                interceptor.always()
-//            } catch (Exception e) {
-//                throw e
-//            }
-//        }
-//    }
-//
-//    @NonCPS
-//    @Override
-//    Object invokeMethod(String name, Object args) {
-//        if (name == "stage") {
-//            try {
-//                Log.info("Called invokeMethod, $name, $args")
-//                metaClass.getMetaMethod('before').invoke(this)
-//                metaClass.getMetaMethod(name, args).invoke(this, args)
-//                metaClass.getMetaMethod('after').invoke(this)
-//            } catch (Exception e) {
-//                metaClass.getMetaMethod('always').invoke(this)
-//                throw e
-//            }
-//        } else {
-//            metaClass.getMetaMethod(name, args).invoke(this, args)
-//        }
-//    }
 
 }

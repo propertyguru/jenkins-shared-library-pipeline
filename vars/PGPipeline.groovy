@@ -2,6 +2,7 @@ import org.pg.Pipeline
 import org.pg.common.Blueprint
 import org.pg.common.BuildArgs
 import org.pg.common.Context
+import org.pg.common.Git
 import org.pg.common.Log
 import org.pg.common.slack.Slack
 
@@ -44,11 +45,18 @@ def call(body) {
             parameters(PipelineParams)
     ])
 
+    println(currentBuild.getClass())
+    println(currentBuild.changeSets.getClass())
+    println(currentBuild.toString())
+
     Context.set(this)
     Log.setup()
     BuildArgs.setup()
     Blueprint.setup()
+    Git.setup()
     Slack.setup(SLACK_ID)
+
+    currentBuild.changeSets.clear()
 
     (new Pipeline()).execute()
 

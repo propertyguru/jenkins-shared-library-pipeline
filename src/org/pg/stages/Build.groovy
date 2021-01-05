@@ -1,6 +1,7 @@
 package org.pg.stages
 
 import org.pg.common.Blueprint
+import org.pg.common.Git
 
 class Build extends Base {
     String stage
@@ -14,7 +15,8 @@ class Build extends Base {
 
     def body() {
         this.step("checking out code from github", {
-//            checkout()
+            Git.checkout()
+            this.context.sh "ls -la"
         })
 //        def deployPath = Blueprint.deployPath()
 //        Log.info("Changing directory ${deployPath}")
@@ -36,34 +38,6 @@ class Build extends Base {
 //                PGbuild.instance.executeSteps('unit_tests')
 //            }
 //        }
-    }
-
-    private def checkout() {
-        Blueprint.load()
-        def branch = this.context.BRANCH
-        def repo = Blueprint.repository()
-        def extensions = [
-                [$class: 'UserIdentity' , name:'Jenkins', email:'jenkins@propertyguru.com.sg'],
-                [$class: 'LocalBranch', localBranch: "**"],
-                [$class: 'CheckoutOption', timeout: 2],
-                [$class: 'CloneOption', depth: 0, honorRefspec: true, noTags: false, reference: '', shallow: false, timeout: 2],
-                [$class: 'CleanBeforeCheckout'],
-                [$class: 'PruneStaleBranch']
-        ]
-
-        this.context.checkout([
-                $class: 'GitSCM',
-                branches: [[name: "${branch}"]],
-                doGenerateSubmoduleConfigurations: false,
-                gitTool: "git",
-                extensions: extensions,
-                userRemoteConfigs: [[
-                                            credentialsId: 'github',
-                                            refspec: "+refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/remotes/origin/*",
-                                            url: "${repo}"
-                                    ]],
-                submoduleCfg: [],
-        ])
     }
 
 }
