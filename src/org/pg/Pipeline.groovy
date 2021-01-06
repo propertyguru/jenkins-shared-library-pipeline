@@ -1,6 +1,6 @@
 package org.pg
 
-import org.pg.stages.Checkout
+
 import org.pg.stages.Build
 import org.pg.stages.Deploy
 

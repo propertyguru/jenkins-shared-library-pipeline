@@ -2,31 +2,29 @@ package org.pg.common
 
 @Singleton
 class BuildArgs {
-    private static def context
+    private static def _context
 
     static void setup() {
-        context = Context.get()
+        _context = Context.get()
     }
 
     static String jobName() {
-        return context.env.JOB_NAME
+        return _context.env.JOB_NAME
     }
 
-    static String component() {
-        def jobName = jobName()
-        if (jobName.startsWith("devtools-")) {
-            return jobName.split("/")[0].split('-')[1]
-        } else if (jobName.startsWith("devtoolsqa-")) {
-            return jobName.split("-")[1]
+    static String component(){
+        if (jobName().startsWith("devtools-")) {
+            return jobName().split("/")[0].split('-')[1]
+        } else if (jobName().startsWith("devtoolsqa-")) {
+            return jobName().split("-")[1]
         }
     }
 
-    static String subcomponent() {
-        def jobName = jobName()
-        if (jobName.startsWith("devtools-")) {
-            return jobName.split("/")[1]
-        } else if (jobName.startsWith("devtoolsqa-")) {
-            return jobName.split("-")[2]
+    static String subcomponent(){
+        if (jobName().startsWith("devtools-")) {
+            return jobName().split("/")[1]
+        } else if (jobName().startsWith("devtoolsqa-")) {
+            return jobName().split("-")[2]
         }
     }
 
@@ -39,11 +37,22 @@ class BuildArgs {
     }
 
     static String buildURL() {
-        return context.env.BUILD_URL
+        return _context.env.BUILD_URL
+    }
+
+    static String buildNumber() {
+        return _context.env.BUILD_NUMBER
     }
 
     static String buildUser() {
         return "Prince Tyagi"
+    }
+
+    static Boolean isPRJob() {
+        if (_context.env.ghprbSourceBranch) {
+            return true
+        }
+        return false
     }
 
 }

@@ -41,7 +41,6 @@ abstract class Base implements Serializable {
                     Slack.send()
                     this.context.error("${e.toString()}")
                 } finally {
-                    Log.info("Running final block")
                     Slack.send(new Message("divider"))
                 }
             })

@@ -22,19 +22,21 @@ class Git {
                 [$class: 'PruneStaleBranch']
         ]
 
-        _context.checkout([
-                $class: 'GitSCM',
-                branches: [[name: "${branch}"]],
-                doGenerateSubmoduleConfigurations: false,
-                gitTool: "git",
-                extensions: extensions,
-                userRemoteConfigs: [[
-                        credentialsId: 'github',
-                        refspec: "+refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/remotes/origin/*",
-                        url: "${repo}"
-                ]],
-                submoduleCfg: [],
-        ])
+        _context.retry(3) {
+            _context.checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "${branch}"]],
+                    doGenerateSubmoduleConfigurations: false,
+                    gitTool: "git",
+                    extensions: extensions,
+                    userRemoteConfigs: [[
+                            credentialsId: 'github',
+                            refspec: "+refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/remotes/origin/*",
+                            url: "${repo}"
+                    ]],
+                    submoduleCfg: [],
+            ])
+        }
     }
 
 }

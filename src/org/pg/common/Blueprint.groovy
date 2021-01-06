@@ -2,34 +2,71 @@ package org.pg.common
 
 @Singleton
 class Blueprint {
-    static def context
-    def data
+    private static def _context
+    private static def data
 
-    static def setup(context) {
-        this.context = Context.get()
+    static void setup() {
+        _context = Context.get()
     }
 
-    static def repository() {
-        def repo = Blueprint.instance.data.get('deploy', {}).get('repository', '')
+    static def component() {
+        return BuildArgs.component()
+    }
+
+    static def subcomponent() {
+        return BuildArgs.subcomponent()
+    }
+
+    static String repository() {
+        def repo = data.get('deploy', {}).get('repository', '')
         return "git@${repo}.git"
     }
 
-    static def load() {
-        Blueprint.instance.data()
+    static String deployPath() {
+        return data.get('deploy', {}).get('path', '.')
     }
 
-    def data(){
-        if (this.data == null) {
+    static String pgbuild() {
+        return data.get('metadata', [:]).get('pgbuild', 'pgbuild.yaml')
+    }
+
+    static String appConfig() {
+        return data.get('metadata', [:]).get('app_config', 'infra')
+    }
+
+    static String dockerfile() {
+        return data.get('docker', [:]).get('file', 'Dockerfile')
+    }
+
+    static String cloud() {
+        return data.get('metadata', [:]).get('cloud', 'aws')
+    }
+
+    static String dockerArgs() {
+        def args = data.get('docker', [:]).get('args', [:])
+        return args.collect { "--build-arg $it" }.join(" ")
+    }
+
+    static Boolean skipDeployment() {
+        return data.get('metadata', [:]).get('skip_deployment', false)
+    }
+
+    static String staticContent() {
+        return data.get('metadata', [:]).get('static_content', [:])
+    }
+
+    static def load() {
+        if (data == null) {
             try {
-                (new Salt(this.context)).sync()
-                this.data = (new Salt(this.context)).blueprint()
-                this.data = data.local
+                (new Salt()).sync()
+                data = (new Salt()).blueprint()
+                data = data.local
             }
             catch(Exception e) {
                 throw e
             }
         }
-        return this.data
+        return data
     }
 
 }
