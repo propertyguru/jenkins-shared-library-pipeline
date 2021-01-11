@@ -5,13 +5,11 @@ import org.pg.common.Context
 class NodeAgent implements IAgent {
     def context
     def environment
-    def stage
     def label
 
-    NodeAgent(environment, stage) {
+    NodeAgent(environment) {
         this.context = Context.get()
         this.environment = environment
-        this.stage = stage
         this.label = "android-slave-01"
     }
 

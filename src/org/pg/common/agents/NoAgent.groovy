@@ -1,12 +1,10 @@
 package org.pg.common.agents
 
 class NoAgent implements IAgent {
-    def environment
-    def stage
+    String environment
 
-    NoAgent(environment, stage) {
+    NoAgent(environment) {
         this.environment = environment
-        this.stage = stage
     }
 
     def withSlave(body) {

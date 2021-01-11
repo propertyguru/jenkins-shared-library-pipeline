@@ -20,11 +20,14 @@ dependencies {
     implementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-api', version: '2.40', ext: 'jar'
     implementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-basic-steps', version: '2.23', ext: 'jar'
     implementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-support', version: '3.7', ext: 'jar'
+    implementation group: 'org.jenkins-ci.plugins', name: 'extended-choice-parameter', version: '0.82', ext: 'jar'
+    implementation group: 'org.jenkins-ci.plugins', name: 'script-security', version: '1.75'
 //    implementation group: 'org.jenkins-ci.plugins', name: 'docker-workflow', version: '1.25'
 
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-api', version: '2.40'
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-basic-steps', version: '2.23', ext: 'jar'
-    testImplementation group: 'com.lesfurets', name: 'jenkins-pipeline-unit', version: '1.1'
+    testImplementation group: 'org.jenkinsci.plugins', name: 'pipeline-model-definition', version: '1.7.2'
+    testImplementation group: 'com.lesfurets', name: 'jenkins-pipeline-unit', version: '1.8'
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-aggregator', version: '2.6'
     testImplementation group: 'org.jenkins-ci.plugins', name: 'hidden-parameter', version: '0.0.4'
 }

@@ -13,6 +13,7 @@ class Git {
         Blueprint.load()
         def branch = _context.BRANCH
         def repo = Blueprint.repository()
+        println("repo is: ${repo}")
         def extensions = [
                 [$class: 'UserIdentity' , name:'Jenkins', email:'jenkins@propertyguru.com.sg'],
                 [$class: 'LocalBranch', localBranch: "**"],

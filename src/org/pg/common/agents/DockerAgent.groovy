@@ -4,19 +4,17 @@ import org.pg.common.Context
 
 class DockerAgent implements IAgent {
     def context
-    def image
-    def args
-    def label
-    def environment
-    def stage
+    String image
+    String args
+    String label
+    String environment
 
-    DockerAgent(environment, stage) {
+    DockerAgent(environment) {
         this.context = Context.get()
         this.image = "pgjenkins:slave1"
         this.args = "-u root -v /etc/salt:/etc/salt -v /var/jenkins_home/.aws/:/root/.aws/ " +
                 "-v /var/run/docker.sock:/var/run/docker.sock -v \$HOME/.ssh:/root/.ssh"
         this.environment = environment
-        this.stage = stage
         this.label = "env:${this.environment}"
     }
 

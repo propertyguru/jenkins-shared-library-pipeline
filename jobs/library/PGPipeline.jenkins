@@ -1,0 +1,4 @@
+package job.library
+
+@Library('jenkins-shared-library@master') _
+PGPipeline()

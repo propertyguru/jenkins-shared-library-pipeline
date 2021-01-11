@@ -51,7 +51,7 @@ class Docker {
         if (target != null) {
             cmd += "--target ${target} "
         }
-        cmd += "-f ${this.dockerFile} ${this.dockerArgs} ${additionalArgs} -t ${repo(environment)}/${this.name}:${this.tag} ."
+        cmd += "-f ${this.dockerFile} ${this.dockerArgs} ${additionalArgs} -t ${imageName(environment)} ."
         this._context.sh(cmd)
     }
 
@@ -59,7 +59,7 @@ class Docker {
         if (this.cloud == 'aws') {
             this._context.sh("aws ecr create-repository --repository-name ${this.name} || true")
             this._context.sh('eval $(aws ecr get-login --no-include-email)')
-            this._context.sh("docker push ${repo("integration")}/${this.name}:${this.tag}")
+            this._context.sh("docker push ${imageName("integration")}")
         } else if (this.cloud == 'gcp') {
             // we have different registries per environment in GCP.
             // therefore if we are deploying the same build to multiple environments, we need to make sure the image
@@ -67,25 +67,33 @@ class Docker {
             for (String env in this._context.ENVIRONMENT.tokenize(',')) {
                 if (env != "integration"){
                     // by default, we create image in integration. We are just copying the image to other envs too.
-                    rename("${repo("integration")}/${this.name}", "${repo(env)}/${this.name}")
+                    rename("${imageNameWithoutTag("integration")}", "${imageNameWithoutTag(env)}")
                 }
-                this._context.sh("docker push ${repo(env)}/${this.name}:${this.tag}")
+                this._context.sh("docker push ${imageName(env)}")
             }
         }
     }
 
     def pull() {
-        String cmd = "docker pull ${this.name}:${this.tag}"
+        String cmd = "docker pull ${imageName()}"
         this._context.sh(cmd)
     }
 
     def remove() {
-        String cmd = "docker rmi ${this.name}:${this.tag}"
+        String cmd = "docker rmi ${imageName()}"
         this._context.sh(cmd)
     }
 
     def rename(String source, String target) {
         this._context.sh("docker tag ${source}:${this.tag} ${target}:${this.tag}")
+    }
+
+    String imageName(String environment="integration") {
+        return "${repo(environment)}/${this.name}:${this.tag}"
+    }
+
+    String imageNameWithoutTag(String environment="integration") {
+        return "${repo(environment)}/${this.name}"
     }
 
     def repo(String environment="integration") {

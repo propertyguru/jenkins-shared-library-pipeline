@@ -3,15 +3,12 @@ package org.pg.stages
 import org.pg.common.Blueprint
 import org.pg.common.BuildArgs
 import org.pg.common.Docker
-import org.pg.common.Git
 import org.pg.common.Log
 import org.pg.common.Output
 import org.pg.common.PGbuild
 import org.pg.common.Salt
 
 class Build extends Base {
-    String stage
-    String description
 
     Build(environment) {
         super(environment)
@@ -20,10 +17,6 @@ class Build extends Base {
     }
 
     def body() {
-        this.step("checking out code from github", {
-            Git.checkout()
-        })
-
         // we have few services sharing the repository.
         // we store deployPath in blueprints to get the subpath in the repo.
         def deployPath = Blueprint.deployPath()
@@ -33,6 +26,7 @@ class Build extends Base {
             this.step("stashing files", {
                 (new Output()).stashDir("infra", "${Blueprint.appConfig()}/*.*")
                 (new Output()).stash("pgbuild", Blueprint.pgbuild())
+                (new Output()).stash("dockerfile", Blueprint.dockerfile())
             })
 
             this.step("Running pre-build from pgbuild file", {
