@@ -14,6 +14,9 @@ class ImageScan extends Base {
 
     @Override
     def body() {
+        def docker = new Docker()
+        docker.setup()
+
         this.step("scanning docker file", {
             // Define path and file variables for Anchore
             String path = this.context.sh(script: 'pwd', returnStdout: true).trim()
@@ -23,9 +26,6 @@ class ImageScan extends Base {
 
             // Write the anchorefile to call the scan from Jenkins Anchore plugin
             try {
-                def docker = new Docker()
-                docker.setup()
-                new Output().unstash("dockerfile")
                 // Try to add the container image with Dockerfile
                 this.context.writeFile(file: anchorefile, text: docker.imageName() + " " + dockerfile)
                 this.context.anchore(

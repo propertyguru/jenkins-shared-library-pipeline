@@ -17,7 +17,7 @@ abstract class Base implements Serializable {
     Base(environment) {
         this.context = Context.get()
         this.environment = environment
-        this.stepMessage = new Message("step", "Getting node to run the stage")
+        this.stepMessage = new Message("step", "")
     }
 
     def execute() {
@@ -34,7 +34,7 @@ abstract class Base implements Serializable {
                 } else {
                     Log.info("Skipping ${this.stage}")
                     Utils.markStageSkippedForConditional(this.stage)
-                    Slack.send(new Message("stage", this.description, "skipped"))
+                    slackMessage.update("skipped")
                 }
             }
         } catch (Exception e) {

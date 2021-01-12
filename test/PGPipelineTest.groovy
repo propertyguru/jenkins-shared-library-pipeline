@@ -123,7 +123,7 @@ class PGPipelineTest extends BasePipelineTest {
         binding.setVariable("ENVIRONMENT", "integration")
         Map env = [:]
         env['JOB_NAME'] = "devtools-ads/product/build-test"
-        env['BUILD_URL'] = "https://jenkins.guruestate.com/"
+        env['BUILD_URL'] = "https://jenkins.guruestate.com/job/devtools-ads/job/product/job/build-test/290/"
         binding.setVariable('env', env)
     }
 
