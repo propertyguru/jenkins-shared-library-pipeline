@@ -38,7 +38,10 @@ class Message {
                 return markdownText(emoji[this.status] + " *" + this.text + "*")
             }
         } else if (this.type == "step") {
-            return markdownText("• "  + this.text)
+            if (this.text != "") {
+                this.text = "• "  + this.text
+            }
+            return markdownText(this.text)
         } else if (this.type == "error") {
             return markdownText("```" + this.text + "```")
         } else {
@@ -52,7 +55,7 @@ class Message {
         this.status = status
     }
 
-    def updateStep(text) {
+    def addStep(text) {
         if (this.text != "") {
             this.text += "\n"
         }

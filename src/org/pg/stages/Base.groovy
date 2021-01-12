@@ -17,13 +17,11 @@ abstract class Base implements Serializable {
     Base(environment) {
         this.context = Context.get()
         this.environment = environment
-        this.stepMessage = new Message("step", "")
     }
 
     def execute() {
         def slackMessage = new Message("stage", this.description, "running")
         Slack.send(slackMessage)
-        Slack.send(this.stepMessage)
 
         try {
             this.context.stage(this.stage) {
@@ -33,7 +31,7 @@ abstract class Base implements Serializable {
                     slackMessage.update("success")
                 } else {
                     Log.info("Skipping ${this.stage}")
-                    Utils.markStageSkippedForConditional(this.stage)
+//                    Utils.markStageSkippedForConditional(this.stage)
                     slackMessage.update("skipped")
                 }
             }
@@ -49,8 +47,15 @@ abstract class Base implements Serializable {
 
     void step(name, closure) {
         try {
-            this.stepMessage.updateStep(name)
-            Slack.send()
+            println(this.stepMessage.getClass())
+            println(this.stepMessage)
+            if (this.stepMessage == null) {
+                this.stepMessage = new Message("step", name)
+                Slack.send(this.stepMessage)
+            } else {
+                this.stepMessage.addStep(name)
+                Slack.send()
+            }
             closure()
         } catch (Exception e) {
             Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
