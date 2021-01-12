@@ -8,6 +8,7 @@ class Setup extends Base {
         this.stage = "setup"
     }
 
+    @Override
     def body() {
         def PipelineParams = [
                 this.context.string(name: 'BRANCH', defaultValue: "master", description: 'Either put a branch name or tags/[tag-name]'),
@@ -22,4 +23,8 @@ class Setup extends Base {
         ])
     }
 
+    @Override
+    Boolean skip() {
+        return null
+    }
 }

@@ -1,12 +1,9 @@
 package org.pg.stages
 
 import org.pg.common.Blueprint
-import org.pg.common.BuildArgs
-import org.pg.common.Docker
 import org.pg.common.Log
 import org.pg.common.Output
 import org.pg.common.PGbuild
-import org.pg.common.Salt
 
 class Build extends Base {
 
@@ -45,4 +42,8 @@ class Build extends Base {
         }
     }
 
+    @Override
+    Boolean skip() {
+        return false
+    }
 }

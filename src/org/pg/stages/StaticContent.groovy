@@ -10,9 +10,6 @@ class StaticContent extends Base {
         super(environment)
         this.stage = "Static content"
         this.description = "upload static content"
-        if (Blueprint.staticContent().isEmpty()) {
-            this.skip = true
-        }
     }
 
     @Override
@@ -39,5 +36,13 @@ class StaticContent extends Base {
                 this.context.parallel static_content_branches
             })
         }
+    }
+
+    @Override
+    Boolean skip() {
+        if (Blueprint.staticContent().isEmpty()) {
+            return true
+        }
+        return false
     }
 }

@@ -64,19 +64,3 @@ class Slack {
     }
 
 }
-
-//if (message != "") {
-//    def callingClass = ReflectionUtils.getCallingClass()
-//    if (callingClass.isAssignableFrom(Base)) {
-//
-//    }
-//    block.add([
-//            "type": "context",
-//            "elements": [
-//                    [
-//                            "type": "mrkdwn",
-//                            "text": colors[status] + message
-//                    ]
-//            ]
-//    ])
-//}

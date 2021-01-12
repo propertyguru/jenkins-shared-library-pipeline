@@ -10,9 +10,6 @@ class Sonarqube extends Base {
         super(environment)
         this.stage = "Sonarqube"
         this.description = "Running code analysis"
-        if (!this.context.fileExists("sonar-project.properties")) {
-            this.skip = true
-        }
     }
 
     @Override
@@ -30,13 +27,23 @@ class Sonarqube extends Base {
                             "-e SONAR_PROJECT_BASE_DIR='/app' -e sonar.scm.provider=git -v ${sonarPath}:/app " +
                             "sonarsource/sonar-scanner-cli:4.4")
                 } catch (Exception e) {
-                    this.context.sh("rm -rf out/")
                     Log.error("Failure building dockerimage with sonarqube target")
                     this.context.error(e.toString())
                 } finally {
+                    // cleanup the workspace
                     this.context.sh("rm -rf ./out")
                 }
             })
         }
+    }
+
+    @Override
+    Boolean skip() {
+        this.context.dir(Blueprint.deployPath()) {
+            if (this.context.fileExists("sonar-project.properties")) {
+                return false
+            }
+        }
+        return true
     }
 }

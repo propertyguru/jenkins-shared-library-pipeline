@@ -38,10 +38,7 @@ class Message {
                 return markdownText(emoji[this.status] + " *" + this.text + "*")
             }
         } else if (this.type == "step") {
-            if (this.text != "") {
-                this.text = "• "  + this.text
-            }
-            return markdownText(this.text)
+            return markdownText("• " + this.text)
         } else if (this.type == "error") {
             return markdownText("```" + this.text + "```")
         } else {

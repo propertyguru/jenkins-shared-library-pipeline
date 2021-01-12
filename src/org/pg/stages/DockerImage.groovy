@@ -33,4 +33,9 @@ class DockerImage extends Base {
             }
         })
     }
+
+    @Override
+    Boolean skip() {
+        return false
+    }
 }

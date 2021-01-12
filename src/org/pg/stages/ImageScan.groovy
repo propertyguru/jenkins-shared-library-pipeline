@@ -41,4 +41,9 @@ class ImageScan extends Base {
             }
         })
     }
+
+    @Override
+    Boolean skip() {
+        return false
+    }
 }
