@@ -24,11 +24,14 @@ class Slack {
                 ] as ArrayList<String>),
                 new Message("divider")
         ]
-        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
-        Log.info(buildUserID)
+//        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
+//        Log.info(buildUserID)
+        buildUserID = "prince-test,test-please-delete"
         def blocks = buildBlocks()
         slackResponse = sendMessage(buildUserID, blocks)
         buildChannelID = slackResponse.getChannelId()
+        Log.info(buildChannelID)
+
     }
 
     static def send(Message msg=null) {
@@ -41,7 +44,7 @@ class Slack {
         // get timestamp from old slackResponse
         String timestamp = slackResponse.getTs()
         // send message and save response to slack response variable
-        slackResponse = sendMessage(buildChannelID, blocks, timestamp)
+        slackResponse = sendMessage(buildUserID, blocks, timestamp)
     }
 
     private static def buildBlocks() {
