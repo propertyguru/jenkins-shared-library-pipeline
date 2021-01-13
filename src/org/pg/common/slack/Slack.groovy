@@ -7,10 +7,9 @@ import org.pg.common.Log
 @Singleton
 class Slack {
     static private def context
-    static private String buildUserID
-    static private String buildChannelID
+    static private ArrayList channels
     static private ArrayList<Message> messages
-    static private def slackResponse
+    static private ArrayList slackResponses
 
     static def setup(slack_id) {
         context = Context.get()
@@ -26,12 +25,9 @@ class Slack {
         ]
 //        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
 //        Log.info(buildUserID)
-        buildUserID = "prince-test,test-please-delete"
+        channels = ["#prince-test", "#test-please-delete"]
         def blocks = buildBlocks()
-        slackResponse = sendMessage(buildUserID, blocks)
-        buildChannelID = slackResponse.getChannelId()
-        Log.info(buildChannelID)
-
+        sendMessage(channels, blocks)
     }
 
     static def send(Message msg=null) {
@@ -39,15 +35,11 @@ class Slack {
         if (msg != null) {
             messages.add(msg)
         }
-        // build the block json array
-        def blocks = buildBlocks()
-        // get timestamp from old slackResponse
-        String timestamp = slackResponse.getTs()
         // send message and save response to slack response variable
-        slackResponse = sendMessage(buildUserID, blocks, timestamp)
+        updateMessage(buildBlocks())
     }
 
-    private static def buildBlocks() {
+    private static ArrayList buildBlocks() {
         def blocks = []
         messages.each { msg ->
             blocks.add(msg.format())
@@ -57,13 +49,27 @@ class Slack {
 
     // sendMessage works with channels and users.
     // for users, simply use @username.
-    private static def sendMessage(String channels, ArrayList blocks, String timestamp = "") {
-        context.slackSend(
-                channel: channels,
-                timestamp: timestamp,
-                blocks: blocks,
-                tokenCredentialId: 'slack-bot-token'
-        )
+    private static def sendMessage(ArrayList channels, ArrayList blocks) {
+        ArrayList responses = []
+        channels.each { channel ->
+            responses.add(context.slackSend(
+                    channel: channel,
+                    blocks: blocks,
+                    tokenCredentialId: 'slack-bot-token'
+            ))
+        }
+        slackResponses = responses
+    }
+
+    private static def updateMessage(ArrayList blocks) {
+        slackResponses.each { response ->
+            context.slackSend(
+                    channel: response.channelId,
+                    timestamp: response.ts,
+                    blocks: blocks,
+                    tokenCredentialId: 'slack-bot-token'
+            )
+        }
     }
 
 }

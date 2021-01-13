@@ -29,22 +29,22 @@ abstract class Base implements Serializable {
                 Log.info("Skipping ${this.stage}")
                 Utils.markStageSkippedForConditional(this.stage)
                 Slack.send(new Message("stage", this.description, "skipped"))
-                return
             }
-        }
-        def slackMessage = new Message("stage", this.description, "running")
-        Slack.send(slackMessage)
-        try {
-            this.context.stage(this.stage) {
-                this.body()
-                slackMessage.update("success")
+        } else {
+            def slackMessage = new Message("stage", this.description, "running")
+            Slack.send(slackMessage)
+            try {
+                this.context.stage(this.stage) {
+                    this.body()
+                    slackMessage.update("success")
+                }
+            } catch (Exception e) {
+                slackMessage.update("failed")
+                Slack.send()
+                this.context.error("${e.toString()}")
+            } finally {
+                Slack.send(new Message("divider"))
             }
-        } catch (Exception e) {
-            slackMessage.update("failed")
-            Slack.send()
-            this.context.error("${e.toString()}")
-        } finally {
-            Slack.send(new Message("divider"))
         }
 
     }
@@ -63,6 +63,7 @@ abstract class Base implements Serializable {
             closure()
         } catch (Exception e) {
             Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
+
             this.context.error("${e.toString()}")
         } finally {
             Log.info("Running final of step ${name}")
