@@ -25,6 +25,14 @@ class Output {
         this._context.unstash(name: "${name}")
     }
 
+    def shWithOutput(String cmd) {
+        this._context.sh(returnStdout: true, script: cmd).trim()
+    }
+
+    def sh(String cmd) {
+        this._context.sh(cmd)
+    }
+
     def archive(name){
         this._context.archiveArtifacts(allowEmptyArchive: true, artifacts: "${name}", fingerprint: true)
     }

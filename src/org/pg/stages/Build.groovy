@@ -17,7 +17,7 @@ class Build extends Base {
         // we have few services sharing the repository.
         // we store deployPath in blueprints to get the subpath in the repo.
         Log.info("Moving to subdirectory ${Blueprint.deployPath()}")
-        this.context.dir(Blueprint.deployPath()) {
+        this._context.dir(Blueprint.deployPath()) {
             // starting a new step instead of a state for unit tests etc.
             this.step("stashing files", {
                 (new Output()).stashDir("infra", "${Blueprint.appConfig()}/*.*")

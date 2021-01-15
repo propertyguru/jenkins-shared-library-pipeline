@@ -2,11 +2,10 @@ package org.pg.stages
 
 import org.pg.common.Blueprint
 import org.pg.common.Docker
-import org.pg.common.Output
 
-class ImageScan extends Base {
+class AnchoreScan extends Base {
 
-    ImageScan(environment) {
+    AnchoreScan(environment) {
         super(environment)
         this.stage = "Image Scanning"
         this.description = "Scanning docker image and file"
@@ -19,7 +18,7 @@ class ImageScan extends Base {
 
         this.step("scanning docker file", {
             // Define path and file variables for Anchore
-            String path = this.context.sh(script: 'pwd', returnStdout: true).trim()
+            String path = this._context.sh(script: 'pwd', returnStdout: true).trim()
             String dockerfile = path + "/${Blueprint.dockerfile()}"
             String anchorefile = path + "/anchore_images"
             String anchore_url = 'http://internal-ac935e7eeb5ed11eaaf2206349892d33-705533012.ap-southeast-1.elb.amazonaws.com:8228/v1'
@@ -27,8 +26,8 @@ class ImageScan extends Base {
             // Write the anchorefile to call the scan from Jenkins Anchore plugin
             try {
                 // Try to add the container image with Dockerfile
-                this.context.writeFile(file: anchorefile, text: docker.imageName() + " " + dockerfile)
-                this.context.anchore(
+                this._context.writeFile(file: anchorefile, text: docker.imageName() + " " + dockerfile)
+                this._context.anchore(
                         url: anchore_url,
                         engineCredentialsId: 'anchore',
                         name: anchorefile,
@@ -37,7 +36,7 @@ class ImageScan extends Base {
                         bailOnPluginFail: false
                 )
             } catch (Exception e) {
-                this.context.error("Failed to analyze the container with Dockerfile")
+                this._context.error("Failed to analyze the container with Dockerfile")
             }
         })
     }

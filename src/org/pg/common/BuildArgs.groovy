@@ -48,6 +48,10 @@ class BuildArgs {
         return "Prince Tyagi"
     }
 
+    static ArrayList<String> getParamValue() {
+        return _context.ENVIRONMENT.tokenize(',')
+    }
+
     static Boolean isPRJob() {
         if (_context.env.ghprbSourceBranch) {
             return true

@@ -4,17 +4,16 @@ import org.pg.common.Context
 import org.pg.common.Log
 import org.pg.common.slack.Message
 import org.pg.common.slack.Slack
-import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 abstract class Base implements Serializable {
-    def context
+    def _context
     String environment
     abstract String stage
     abstract String description
     Message stepMessage
 
     Base(environment) {
-        this.context = Context.get()
+        this._context = Context.get()
         this.environment = environment
     }
 
@@ -25,23 +24,23 @@ abstract class Base implements Serializable {
         // every stage has a skip() method, which decides whether to skip the stage or not.
         if (this.skip()) {
             // we need to put the stage directive here because otherwise the skipped stage is not visible on the UI.
-            this.context.stage(this.stage) {
+            this._context.stage(this.stage) {
                 Log.info("Skipping ${this.stage}")
-                Utils.markStageSkippedForConditional(this.stage)
+//                Utils.markStageSkippedForConditional(this.stage)
                 Slack.send(new Message("stage", this.description, "skipped"))
             }
         } else {
             def slackMessage = new Message("stage", this.description, "running")
             Slack.send(slackMessage)
             try {
-                this.context.stage(this.stage) {
+                this._context.stage(this.stage) {
                     this.body()
                     slackMessage.update("success")
                 }
             } catch (Exception e) {
                 slackMessage.update("failed")
                 Slack.send()
-                this.context.error("${e.toString()}")
+                this._context.error("${e.toString()}")
             } finally {
                 Slack.send(new Message("divider"))
             }
@@ -64,7 +63,7 @@ abstract class Base implements Serializable {
         } catch (Exception e) {
             Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
 
-            this.context.error("${e.toString()}")
+            this._context.error("${e.toString()}")
         } finally {
             Log.info("Running final of step ${name}")
         }

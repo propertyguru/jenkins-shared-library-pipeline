@@ -1,14 +1,12 @@
-import hudson.model.BooleanParameterValue
-import hudson.model.StringParameterValue
 import org.pg.Pipeline
 import org.pg.common.Blueprint
 import org.pg.common.BuildArgs
 import org.pg.common.Context
 import org.pg.common.Git
+import org.pg.common.JobDescription
 import org.pg.common.Log
 import org.pg.common.PGbuild
 import org.pg.common.slack.Slack
-import jenkins.model.Jenkins
 
 def call(body) {
 
@@ -42,7 +40,8 @@ def call(body) {
     PGbuild.setup()
     Blueprint.setup()
     Git.setup()
-    Slack.setup(SLACK_ID)
+    Slack.setup()
+    JobDescription.setup()
 
     currentBuild.changeSets.clear()
 

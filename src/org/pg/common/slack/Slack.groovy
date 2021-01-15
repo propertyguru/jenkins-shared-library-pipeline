@@ -7,11 +7,12 @@ import org.pg.common.Log
 @Singleton
 class Slack {
     static private def context
-    static private ArrayList channels
+    static private ArrayList<String> channels
+    static private ArrayList<String> users
     static private ArrayList<Message> messages
     static private ArrayList slackResponses
 
-    static def setup(slack_id) {
+    static def setup() {
         context = Context.get()
         messages = [
                 new Message("heading", "ads-product"),
@@ -23,10 +24,22 @@ class Slack {
                 ] as ArrayList<String>),
                 new Message("divider")
         ]
-//        buildUserID = context.slackUserIdFromEmail(email: 'prince@propertyguru.com.sg', tokenCredentialId: 'slack-bot-token')
-//        Log.info(buildUserID)
+
+        // get users from blueprints and get slack id of each user
+        users = ["prince@propertyguru.com.sg"]
+        ArrayList<String> userEmails = []
+        users = users.each { user ->
+            String userEmail = context.slackUserIdFromEmail(email: user, tokenCredentialId: 'slack-bot-token')
+            userEmails.add(userEmail)
+        }
+        users = userEmails
+
+        // get channels from blueprints
         channels = ["#prince-test", "#test-please-delete"]
+
+        // build the blocks
         def blocks = buildBlocks()
+        // send the message to channels
         sendMessage(channels, blocks)
     }
 

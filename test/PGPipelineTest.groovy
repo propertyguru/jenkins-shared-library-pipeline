@@ -121,6 +121,33 @@ class PGPipelineTest extends BasePipelineTest {
         binding.setVariable("SLACK_ID", "XYZ")
         binding.setVariable("BRANCH", "master")
         binding.setVariable("ENVIRONMENT", "integration")
+        binding.setVariable('currentBuild', [
+                absoluteUrl: 'http://example.com/dummy',
+                buildVariables: [:],
+                changeSets: [],
+                currentResult: 'SUCCESS',
+                description: 'dummy',
+                displayName: '#1',
+                duration: 1,
+                durationString: '1 ms',
+                fullDisplayName: 'dummy #1',
+                fullProjectName: 'dummy',
+                id: '1',
+                keepLog: false,
+                nextBuild: null,
+                number: 1,
+                previousBuild: null,
+                projectName: 'dummy',
+                rawBuild: [
+                        'project': [
+                                'description': ""
+                        ]
+                ],
+                result: 'SUCCESS',
+                startTimeInMillis: 1,
+                timeInMillis: 1,
+                upstreamBuilds: [],
+        ])
         Map env = [:]
         env['JOB_NAME'] = "devtools-ads/product/build-test"
         env['BUILD_URL'] = "https://jenkins.guruestate.com/job/devtools-ads/job/product/job/build-test/290/"

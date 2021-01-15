@@ -17,21 +17,22 @@ class Sonarqube extends Base {
         def docker = new Docker()
         docker.setup()
 
-        this.context.dir(Blueprint.deployPath()) {
+        this._context.dir(Blueprint.deployPath()) {
             this.step("sonarqube", {
                 try {
-                    String sonarPath = this.context.sh(script: 'pwd', returnStdout: true).trim()
+                    String sonarPath
+                    sonarPath = this._context.sh(script: 'pwd', returnStdout: true).trim()
                     sonarPath = "${sonarPath}/out/app"
                     docker.build(this.environment, "sonarqube", "out")
-                    this.context.sh("docker run --rm -e SONAR_HOST_URL='http://sonarqube.guruestate.com:9000' " +
+                    this._context.sh("docker run --rm -e SONAR_HOST_URL='http://sonarqube.guruestate.com:9000' " +
                             "-e SONAR_PROJECT_BASE_DIR='/app' -e sonar.scm.provider=git -v ${sonarPath}:/app " +
                             "sonarsource/sonar-scanner-cli:4.4")
                 } catch (Exception e) {
                     Log.error("Failure building dockerimage with sonarqube target")
-                    this.context.error(e.toString())
+                    this._context.error(e.toString())
                 } finally {
                     // cleanup the workspace
-                    this.context.sh("rm -rf ./out")
+                    this._context.sh("rm -rf ./out")
                 }
             })
         }
@@ -39,8 +40,8 @@ class Sonarqube extends Base {
 
     @Override
     Boolean skip() {
-        this.context.dir(Blueprint.deployPath()) {
-            if (this.context.fileExists("sonar-project.properties")) {
+        this._context.dir(Blueprint.deployPath()) {
+            if (this._context.fileExists("sonar-project.properties")) {
                 return false
             }
         }
