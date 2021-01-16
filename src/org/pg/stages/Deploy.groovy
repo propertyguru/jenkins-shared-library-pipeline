@@ -1,6 +1,6 @@
 package org.pg.stages
 
-
+import org.pg.common.BuildArgs
 import org.pg.common.Git
 import org.pg.common.JobDescription
 import org.pg.common.Log
@@ -9,17 +9,14 @@ class Deploy extends Base {
 
     Deploy(environment) {
         super(environment)
-        this.stage = "deploy - ${this.environment}"
-        this.description = "Deploying to ${this.environment}"
+        this.stage = "Deploy - ${this.environment}"
+        this.description = "Deploy - ${this.environment}"
     }
 
     @Override
     def body() {
-        this.step("starting deployment of service.", {
+        this.step("Deploying", {
 //            echo "I am good here!"
-            // set job description
-            JobDescription.update(this.environment, Git.commitID)
-            Log.info(JobDescription.getDescription())
         })
     }
 

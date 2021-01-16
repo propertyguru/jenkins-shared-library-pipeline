@@ -9,8 +9,8 @@ class Build extends Base {
 
     Build(environment) {
         super(environment)
-        this.stage = "build"
-        this.description = "Building the code"
+        this.stage = "Build"
+        this.description = "Build"
     }
 
     def body() {
@@ -19,7 +19,7 @@ class Build extends Base {
         Log.info("Moving to subdirectory ${Blueprint.deployPath()}")
         this._context.dir(Blueprint.deployPath()) {
             // starting a new step instead of a state for unit tests etc.
-            this.step("stashing files", {
+            this.step("Stashing files", {
                 (new Output()).stashDir("infra", "${Blueprint.appConfig()}/*.*")
                 (new Output()).stash("pgbuild", Blueprint.pgbuild())
             })

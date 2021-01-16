@@ -40,15 +40,15 @@ class BuildArgs {
         return _context.env.BUILD_URL
     }
 
-    static String buildNumber() {
-        return _context.env.BUILD_NUMBER
+    static Integer buildNumber() {
+        return _context.env.BUILD_NUMBER as Integer
     }
 
     static String buildUser() {
         return "Prince Tyagi"
     }
 
-    static ArrayList<String> getParamValue() {
+    static ArrayList<String> getEnvParam() {
         return _context.ENVIRONMENT.tokenize(',')
     }
 

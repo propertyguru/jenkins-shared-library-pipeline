@@ -41,7 +41,6 @@ def call(body) {
     Blueprint.setup()
     Git.setup()
     Slack.setup()
-    JobDescription.setup()
 
     currentBuild.changeSets.clear()
 

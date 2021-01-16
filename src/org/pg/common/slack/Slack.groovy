@@ -2,7 +2,9 @@ package org.pg.common.slack
 
 import org.pg.common.BuildArgs
 import org.pg.common.Context
+import org.pg.common.Git
 import org.pg.common.Log
+import org.pg.common.Utils
 
 @Singleton
 class Slack {
@@ -11,6 +13,7 @@ class Slack {
     static private ArrayList<String> users
     static private ArrayList<Message> messages
     static private ArrayList slackResponses
+    static private String attachments = null
 
     static def setup() {
         context = Context.get()
@@ -49,7 +52,7 @@ class Slack {
             messages.add(msg)
         }
         // send message and save response to slack response variable
-        updateMessage(buildBlocks())
+        updateMessage()
     }
 
     private static ArrayList buildBlocks() {
@@ -74,13 +77,25 @@ class Slack {
         slackResponses = responses
     }
 
-    private static def updateMessage(ArrayList blocks) {
+    static def uploadFile(String text) {
+        context.writeFile(file: 'changelog.txt', text: text)
+        slackResponses.each { response ->
+            context.slackUploadFile(
+                    channel: response.threadId,
+                    filePath: "changelog.txt"
+            )
+        }
+    }
+
+    private static def updateMessage() {
+        ArrayList blocks = buildBlocks()
         slackResponses.each { response ->
             context.slackSend(
                     channel: response.channelId,
                     timestamp: response.ts,
                     blocks: blocks,
-                    tokenCredentialId: 'slack-bot-token'
+                    tokenCredentialId: 'slack-bot-token',
+                    attachments: attachments
             )
         }
     }
