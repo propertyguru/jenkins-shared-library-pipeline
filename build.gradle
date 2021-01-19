@@ -30,6 +30,7 @@ dependencies {
     testImplementation group: 'com.lesfurets', name: 'jenkins-pipeline-unit', version: '1.8'
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-aggregator', version: '2.6'
     testImplementation group: 'org.jenkins-ci.plugins', name: 'hidden-parameter', version: '0.0.4'
+    testImplementation group: 'org.jenkins-ci.plugins', name: 'extended-choice-parameter', version: '0.82', ext: 'jar'
 }
 
 sourceSets {
