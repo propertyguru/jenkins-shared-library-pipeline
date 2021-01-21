@@ -16,14 +16,16 @@ class Salt {
         return Utils.toJson(text)
     }
 
-    def saltCall(cmd){
+    def saltCall(String cmd){
         def log_level = Log.level() == "debug" ? '-l debug' : ''
         this._context.sh("salt-call ${log_level} ${cmd}")
     }
 
-    def saltCallWithOutput(cmd){
-        def log_level = Log.level() == "debug" ? '-l debug' : ''
-        this._context.sh(returnStdout: true, script: "salt-call ${log_level} ${cmd}")
+    def saltCallWithOutput(String cmd){
+        String log_level = Log.level() == "debug" ? '-l debug' : ''
+        cmd = "salt-call ${log_level} ${cmd}"
+        Log.info(cmd)
+        this._context.sh(returnStdout: true, script: cmd)
     }
 
 }
