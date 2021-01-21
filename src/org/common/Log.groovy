@@ -33,8 +33,9 @@ class Log {
         logMessage("info", message)
     }
 
-    static def error(String message){
-        logMessage("error", message)
+    static def error(Exception e){
+        logMessage("error", e.toString())
+        _context.error(e)
     }
 
     private static logMessage(String level, String message){
