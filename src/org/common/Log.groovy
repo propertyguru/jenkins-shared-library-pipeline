@@ -3,7 +3,7 @@ package org.common
 import java.text.SimpleDateFormat
 
 @Singleton
-class Log {
+class Log implements Serializable {
     private static def _context
     private static ArrayList<String> levels = ["debug", "info", "error"]
     private static String dateFormat = "dd.MM.yyyy|HH:mm:ss.SSS"
@@ -33,17 +33,21 @@ class Log {
         logMessage("info", message)
     }
 
-    static def error(Exception e){
-        logMessage("error", e.toString())
-        _context.error(e)
+    static def error(String message){
+        logMessage("error", message)
+        _context.error(message)
     }
 
-    private static logMessage(String level, String message){
+    private static String coloredMessage(String level, String message) {
+        return "${ansiCodes[level]}${message}\033[0m"
+    }
+
+    private static void logMessage(String level, String message){
         if(levels.indexOf(level) >= levels.indexOf(logLevel)){
             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat)
             String date = formatter.format(new Date())
             _context.ansiColor('xterm') {
-                _context.println "${ansiCodes[level]}${date} [${level.toUpperCase()}] ${message}\033[0m"
+                _context.println coloredMessage(level, "${date} [${level.toUpperCase()}] ${message}")
             }
         }
     }

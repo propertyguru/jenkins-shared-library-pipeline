@@ -18,7 +18,9 @@ class Salt {
 
     def saltCall(String cmd){
         def log_level = Log.level() == "debug" ? '-l debug' : ''
-        this._context.sh("salt-call ${log_level} ${cmd}")
+        cmd = "salt-call ${log_level} ${cmd}"
+        Log.info(cmd)
+        this._context.sh(cmd)
     }
 
     def saltCallWithOutput(String cmd){

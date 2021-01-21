@@ -29,10 +29,10 @@ class Deploy extends Base {
 
         this.step("Deploying service", {
             if (BuildArgs.name().startsWith("guruland")){
-                new AutoScalingGroups().deploy()
+                AutoScalingGroups.deploy()
             } else {
-                new Kubernetes(this.environment).promote()
-                new Kubernetes(this.environment).deploy()
+                Kubernetes.promote(this.environment)
+                Kubernetes.deploy()
             }
         })
 
@@ -48,43 +48,36 @@ class Deploy extends Base {
     }
 }
 
+@Singleton
 class Kubernetes {
-    private def _context
-    private String environment
-
-    Kubernetes(String environment) {
-        this._context = Context.get()
-        this.environment = environment
-    }
-
-    void promote() {
+    static void promote(String environment) {
+        def _context = Context.get()
+//        Log.info(_context.getClass() as String)
         (new Output()).unstash("infra")
-        String filename = "./${Blueprint.appConfig()}/${this.environment}.env"
-        if (this._context.fileExists(filename)) {
+        String filename = "./${Blueprint.appConfig()}/${environment}.env"
+        if (_context.fileExists(filename)) {
 //            (new Salt()).saltCallWithOutput("shipit.deploy app_name='pg_${Blueprint.component()}_${Blueprint.subcomponent()}' config_file=${filename}")
+            Log.info("inside fileexists.")
         } else {
-            Log.error("${filename} is missing from infra folder.")
+            Log.info("${filename} is missing from infra folder.")
         }
     }
 
-    void deploy() {
+    static void deploy() {
         String cmd = "state.sls shipit.deploy pillar=\"{'app_name':'pg_${Blueprint.component()}_${Blueprint.subcomponent()}'}\" --retcode-passthrough"
 //        (new Salt()).saltCallWithOutput(cmd)
     }
 
 }
 
+@Singleton
 class AutoScalingGroups {
 
-    AutoScalingGroups() {
-
-    }
-
-    void promote() {
+    static void promote() {
         // we don't have promotion step in this type of deployment!
     }
 
-    void deploy() {
+    static void deploy() {
         String cmd = "state.sls shipit.guruland pillar=\"{'app_name':'pg_${Blueprint.component()}_${Blueprint.subcomponent()}'}\" --retcode-passthrough"
 //        (new Salt()).saltCallWithOutput(cmd)
     }

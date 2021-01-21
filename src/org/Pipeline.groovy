@@ -29,12 +29,10 @@ class Pipeline {
         this.agent.withSlave({
             new Checkout().execute()
             new Build().execute()
-            this._context.parallel {
-                new Sonarqube("integration").execute()
-                new DockerImage("integration").execute()
-                new StaticContent("integration").execute()
-            }
-            new AnchoreScan().execute()
+            new Sonarqube("integration").execute()
+            new DockerImage("integration").execute()
+            new StaticContent("integration").execute()
+//            new AnchoreScan().execute()
         })
 
         ["integration", "staging", "production"].each{ String env ->

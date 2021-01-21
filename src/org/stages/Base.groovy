@@ -38,9 +38,8 @@ abstract class Base implements Serializable {
             } catch (Exception e) {
                 slackMessage.update("failed")
                 Slack.send()
-                Log.error(e)
-            } finally {
                 Slack.send(new Message("divider"))
+                Log.error(e.toString())
             }
         }
 
@@ -60,9 +59,9 @@ abstract class Base implements Serializable {
             closure()
         } catch (Exception e) {
             Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
-            Log.error(e)
-        } finally {
             Log.info("Running final of step ${name}")
+            Log.error(e.toString())
+            Log.info(e.printStackTrace())
         }
     }
 
