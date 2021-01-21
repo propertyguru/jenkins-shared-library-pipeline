@@ -22,6 +22,8 @@ dependencies {
     implementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-support', version: '3.7', ext: 'jar'
     implementation group: 'org.jenkins-ci.plugins', name: 'extended-choice-parameter', version: '0.82', ext: 'jar'
     implementation group: 'org.jenkins-ci.plugins', name: 'script-security', version: '1.75'
+    implementation group: 'org.codehaus.groovy', name: 'groovy-yaml', version: '3.0.7'
+
 //    implementation group: 'org.jenkins-ci.plugins', name: 'docker-workflow', version: '1.25'
 
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-api', version: '2.40'

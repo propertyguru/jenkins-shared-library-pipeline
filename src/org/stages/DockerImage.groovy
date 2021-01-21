@@ -6,8 +6,11 @@ import org.common.Docker
 
 class DockerImage extends Base {
 
+    private String environment
+
     DockerImage(environment) {
-        super(environment)
+        super()
+        this.environment = environment
         this.stage = "Docker Image"
         this.description = "Docker Image"
     }

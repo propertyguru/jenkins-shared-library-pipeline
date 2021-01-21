@@ -5,8 +5,8 @@ import org.common.Docker
 
 class AnchoreScan extends Base {
 
-    AnchoreScan(environment) {
-        super(environment)
+    AnchoreScan() {
+        super()
         this.stage = "Image Scanning"
         this.description = "Scanning docker image and file"
     }

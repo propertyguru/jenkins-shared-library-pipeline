@@ -3,3 +3,6 @@ pipeline:
     - integration
     - staging
     - production
+  JOBS:
+    guruland-guruland:
+      workspace: /srv/guruland

@@ -11,8 +11,8 @@ class Checkout extends Base {
 
     private ArrayList extensions
 
-    Checkout(String environment) {
-        super(environment)
+    Checkout() {
+        super()
         this.stage = "Github"
         this.description = "Github"
         this.extensions = []

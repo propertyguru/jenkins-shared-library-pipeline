@@ -1,11 +1,13 @@
 package org.stages
 
+import org.common.Blueprint
 import org.common.Docker
 import org.common.Log
+import org.common.Salt
 
 class StaticContent extends Base {
-    StaticContent(Object environment) {
-        super(environment)
+    StaticContent(String environment) {
+        super()
         this.stage = "Static content"
         this.description = "upload static content"
     }
@@ -15,7 +17,7 @@ class StaticContent extends Base {
         def docker = new Docker()
         docker.setup()
 
-        this._context.dir(org.common.Blueprint.deployPath()) {
+        this._context.dir(Blueprint.deployPath()) {
             // check if static content needs to be uploaded.
             // TODO: this can be moved to deploy stage so that we upload content and deploy in parallel
             this.step("uploading static content", {
@@ -26,8 +28,8 @@ class StaticContent extends Base {
                         docker.build(env, "static-content", "${env}_static",
                                 "--build-arg BUILD_ENV=${env}")
                         Log.debug("Uploading Static content to S3 to ${env}")
-                        (new org.common.Salt()).saltCallWithOutput("shipit.static_content ${org.common.Blueprint.component()} " +
-                                "${org.common.Blueprint.subcomponent()} ${env} ${env}_static/app/")
+                        (new Salt()).saltCallWithOutput("shipit.static_content ${Blueprint.component()} " +
+                                "${Blueprint.subcomponent()} ${env} ${env}_static/app/")
                         this._context.sh("rm -rf ./${env}_static")
                     }
                 }
@@ -38,7 +40,7 @@ class StaticContent extends Base {
 
     @Override
     Boolean skip() {
-        if (org.common.Blueprint.staticContent().isEmpty()) {
+        if (Blueprint.staticContent().isEmpty()) {
             return true
         }
         return false

@@ -1,12 +1,16 @@
 package org.stages
 
+import org.common.Blueprint
 import org.common.Docker
 import org.common.Log
 
 class Sonarqube extends Base {
 
-    Sonarqube(Object environment) {
-        super(environment)
+    private String environment
+
+    Sonarqube(String environment) {
+        super()
+        this.environment = environment
         this.stage = "Sonarqube"
         this.description = "Running code analysis"
     }
@@ -16,7 +20,7 @@ class Sonarqube extends Base {
         def docker = new Docker()
         docker.setup()
 
-        this._context.dir(org.common.Blueprint.deployPath()) {
+        this._context.dir(Blueprint.deployPath()) {
             this.step("sonarqube", {
                 try {
                     String sonarPath
@@ -39,7 +43,7 @@ class Sonarqube extends Base {
 
     @Override
     Boolean skip() {
-        this._context.dir(org.common.Blueprint.deployPath()) {
+        this._context.dir(Blueprint.deployPath()) {
             if (this._context.fileExists("sonar-project.properties")) {
                 return false
             }

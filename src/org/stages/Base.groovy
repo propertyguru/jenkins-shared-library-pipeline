@@ -7,14 +7,12 @@ import org.common.slack.Slack
 
 abstract class Base implements Serializable {
     def _context
-    String environment
     abstract String stage
     abstract String description
     Message stepMessage
 
-    Base(String environment) {
+    Base() {
         this._context = Context.get()
-        this.environment = environment
     }
 
     void execute() {

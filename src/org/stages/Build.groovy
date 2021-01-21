@@ -7,8 +7,8 @@ import org.common.PGbuild
 
 class Build extends Base {
 
-    Build(environment) {
-        super(environment)
+    Build() {
+        super()
         this.stage = "Build"
         this.description = "Build"
     }
