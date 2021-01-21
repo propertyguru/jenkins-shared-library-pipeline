@@ -8,6 +8,11 @@ class Log {
     private static ArrayList<String> levels = ["debug", "info", "error"]
     private static String dateFormat = "dd.MM.yyyy|HH:mm:ss.SSS"
     private static String logLevel = "info"
+    private static Map<String, String> ansiCodes = [
+            "debug": "\033[33m",
+            "info": "\033[32m",
+            "error": "\033[31m"
+    ]
 
     static def setup() {
         _context = Context.get()
@@ -20,16 +25,16 @@ class Log {
         return logLevel
     }
 
-    static def debug(def message){
-        logMessage("debug", "\033[33m ${message} \033[0m")
+    static def debug(String message){
+        logMessage("debug", message)
     }
 
-    static def info(def message) {
-        logMessage("info", "\033[32m ${message} \033[0m")
+    static def info(String message) {
+        logMessage("info", message)
     }
 
-    static def error(def message){
-        logMessage("error", "\033[31m ${message} \033[0m")
+    static def error(String message){
+        logMessage("error", message)
     }
 
     private static logMessage(String level, String message){
@@ -37,7 +42,7 @@ class Log {
             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat)
             String date = formatter.format(new Date())
             _context.ansiColor('xterm') {
-                _context.println "${date} [${level.toUpperCase()}] ${message}"
+                _context.println "${ansiCodes[level]}${date} [${level.toUpperCase()}] ${message}\033[0m"
             }
         }
     }
