@@ -21,18 +21,18 @@ class Log {
     }
 
     static def debug(def message){
-        logMessage("debug", message)
+        logMessage("debug", "\033[33m ${message} \033[0m")
     }
 
     static def info(def message) {
-        logMessage("info", message)
+        logMessage("info", "\033[32m ${message} \033[0m")
     }
 
-    static def error(message){
-        logMessage("error", message)
+    static def error(def message){
+        logMessage("error", "\033[31m ${message} \033[0m")
     }
 
-    private static logMessage(String level, def message){
+    private static logMessage(String level, String message){
         if(levels.indexOf(level) >= levels.indexOf(logLevel)){
             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat)
             String date = formatter.format(new Date())
