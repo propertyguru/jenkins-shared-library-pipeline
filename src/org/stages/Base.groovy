@@ -39,7 +39,7 @@ abstract class Base implements Serializable {
                 slackMessage.update("failed")
                 Slack.send()
                 Log.error(e.toString())
-                this._context.error(e.printStackTrace())
+                this._context.error(e)
             } finally {
                 Slack.send(new Message("divider"))
             }
@@ -62,7 +62,7 @@ abstract class Base implements Serializable {
         } catch (Exception e) {
             Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
             Log.error(e.toString())
-            this._context.error(e.printStackTrace())
+            this._context.error(e)
         } finally {
             Log.info("Running final of step ${name}")
         }
