@@ -47,7 +47,7 @@ def call(body) {
                     name: 'SLACK_ID'
             ]
     ]
-
+    
     properties([
             [$class: 'JiraProjectProperty', siteName: 'https://propertyguru.atlassian.net/'],
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']],
