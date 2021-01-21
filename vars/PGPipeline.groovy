@@ -6,7 +6,6 @@ import org.common.Git
 import org.common.Log
 import org.common.PGbuild
 import org.common.slack.Slack
-import groovy.yaml.YamlSlurper
 
 def call(body) {
 
@@ -66,13 +65,14 @@ def call(body) {
 
     currentBuild.changeSets.clear()
 
-//    (new Pipeline()).execute()
+    (new Pipeline()).execute()
 
     def text = libraryResource('resources/default_values.yaml')
-    def a = new YamlSlurper().parseText(text)
-    println(a)
-    def jobs = a['pipeline']['JOBS']
-    println(jobs)
-    println('guruland-guruland' in jobs)
+    Log.error(text)
+//    def a = new YamlSlurper().parseText(text)
+//    println(a)
+//    def jobs = a['pipeline']['JOBS']
+//    println(jobs)
+//    println('guruland-guruland' in jobs)
 
 }
