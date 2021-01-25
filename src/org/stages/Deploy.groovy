@@ -2,12 +2,9 @@ package org.stages
 
 import org.common.Blueprint
 import org.common.BuildArgs
-import org.common.Context
-import org.common.Git
 import org.common.Log
-import org.common.Output
-import org.common.Salt
-import org.springframework.security.access.method.P
+
+import org.common.StepExecutor
 
 class Deploy extends Base {
 
@@ -41,7 +38,7 @@ class Deploy extends Base {
     @Override
     Boolean skip() {
         // set skip variable to true if this stage needs to be skipped.
-        if (this.environment in this._context.ENVIRONMENT.tokenize(',')) {
+        if (this.environment in StepExecutor.env('ENVIRONMENT').tokenize(',')) {
             return false
         }
         return true
@@ -51,11 +48,9 @@ class Deploy extends Base {
 @Singleton
 class Kubernetes {
     static void promote(String environment) {
-        def _context = Context.get()
-//        Log.info(_context.getClass() as String)
-        (new Output()).unstash("infra")
+        StepExecutor.unstash("infra")
         String filename = "./${Blueprint.appConfig()}/${environment}.env"
-        if (_context.fileExists(filename)) {
+        if (StepExecutor.fileExists(filename)) {
 //            (new Salt()).saltCallWithOutput("shipit.deploy app_name='pg_${Blueprint.component()}_${Blueprint.subcomponent()}' config_file=${filename}")
             Log.info("inside fileexists.")
         } else {

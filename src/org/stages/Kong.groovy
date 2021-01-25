@@ -1,7 +1,8 @@
 package org.stages
 
 import org.common.Blueprint
-import org.common.Output
+
+import org.common.StepExecutor
 
 class Kong extends Base {
 
@@ -17,7 +18,7 @@ class Kong extends Base {
     @Override
     def body() {
         this.step("Configuring Kong API gateway", {
-            (new Output()).unstash("pgbuild")
+            StepExecutor.unstash("pgbuild")
             String cmd = "kong.apply ${Blueprint.component()} ${Blueprint.subcomponent()} ${Blueprint.pgbuild()}"
 //            (new Salt()).saltCallWithOutput(cmd)
         })
@@ -26,7 +27,7 @@ class Kong extends Base {
     @Override
     Boolean skip() {
         // set skip variable to true if this stage needs to be skipped.
-        if (this.environment in this._context.ENVIRONMENT.tokenize(',')) {
+        if (this.environment in StepExecutor.env('ENVIRONMENT').tokenize(',')) {
             return false
         }
         return true

@@ -4,6 +4,7 @@ import org.common.Blueprint
 import org.common.Docker
 import org.common.Log
 import org.common.Salt
+import org.common.StepExecutor
 
 class StaticContent extends Base {
     StaticContent(String environment) {
@@ -17,12 +18,12 @@ class StaticContent extends Base {
         def docker = new Docker()
         docker.setup()
 
-        this._context.dir(Blueprint.deployPath()) {
+        StepExecutor.dir(Blueprint.deployPath(), {
             // check if static content needs to be uploaded.
             // TODO: this can be moved to deploy stage so that we upload content and deploy in parallel
             this.step("uploading static content", {
                 def static_content_branches = [:]
-                for (String e in this._context.ENVIRONMENT.tokenize(',')) {
+                for (String e in StepExecutor.env('ENVIRONMENT').tokenize(',')) {
                     String env = e
                     static_content_branches[env] = {
                         docker.build(env, "static-content", "${env}_static",
@@ -30,12 +31,12 @@ class StaticContent extends Base {
                         Log.debug("Uploading Static content to S3 to ${env}")
                         (new Salt()).saltCallWithOutput("shipit.static_content ${Blueprint.component()} " +
                                 "${Blueprint.subcomponent()} ${env} ${env}_static/app/")
-                        this._context.sh("rm -rf ./${env}_static")
+                        StepExecutor.sh("rm -rf ./${env}_static")
                     }
                 }
-                this._context.parallel static_content_branches
+                StepExecutor.parallel(static_content_branches)
             })
-        }
+        })
     }
 
     @Override

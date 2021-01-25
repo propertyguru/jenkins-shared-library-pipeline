@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat
 
 @Singleton
 class Log implements Serializable {
-    private static def _context
     private static ArrayList<String> levels = ["debug", "info", "error"]
     private static String dateFormat = "dd.MM.yyyy|HH:mm:ss.SSS"
     private static String logLevel = "info"
@@ -15,8 +14,7 @@ class Log implements Serializable {
     ]
 
     static def setup() {
-        _context = Context.get()
-        if (_context.LOGLEVEL == "true") {
+        if (StepExecutor.env('LOGLEVEL') == "true") {
             logLevel = "debug"
         }
     }
@@ -35,7 +33,7 @@ class Log implements Serializable {
 
     static def error(String message){
         logMessage("error", message)
-        _context.error(message)
+        StepExecutor.error(message)
     }
 
     private static String coloredMessage(String level, String message) {
@@ -46,9 +44,10 @@ class Log implements Serializable {
         if(levels.indexOf(level) >= levels.indexOf(logLevel)){
             SimpleDateFormat formatter = new SimpleDateFormat(dateFormat)
             String date = formatter.format(new Date())
-            _context.ansiColor('xterm') {
-                _context.println coloredMessage(level, "${date} [${level.toUpperCase()}] ${message}")
-            }
+            StepExecutor.ansiColor('xterm', {
+                String text = coloredMessage(level, "${date} [${level.toUpperCase()}] ${message}")
+                StepExecutor.println(text)
+            })
         }
     }
 }

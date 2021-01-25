@@ -10,6 +10,6 @@ def static toJson(data){
 }
 
 @NonCPS
-def static toString(data) {
+static String toString(data) {
     return new JsonBuilder(data).toString()
 }

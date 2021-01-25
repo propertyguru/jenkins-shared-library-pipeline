@@ -2,12 +2,7 @@ package org.common
 
 @Singleton
 class Blueprint {
-    private static def _context
     private static def data
-
-    static void setup() {
-        _context = Context.get()
-    }
 
     static def component() {
         return BuildArgs.component()

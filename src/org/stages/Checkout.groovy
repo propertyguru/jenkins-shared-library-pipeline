@@ -4,6 +4,7 @@ import org.common.Blueprint
 import org.common.BuildArgs
 import org.common.Git
 import org.common.Log
+import org.common.StepExecutor
 import org.common.Utils
 import org.common.slack.Slack
 
@@ -28,7 +29,7 @@ class Checkout extends Base {
 
         this.step("Checking out code", {
             String tag = ""
-            BuildArgs.getEnvParam().each { String env ->
+            StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 tag = Git.getLastTag(env)
             }
             if (tag != "") {
@@ -39,7 +40,7 @@ class Checkout extends Base {
         })
 
         this.step("Sharing changelog on slack", {
-            BuildArgs.getEnvParam().each { String env ->
+            StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 ArrayList<String> changelog = Git.getChangelog(env)
                 String msg
                 if (changelog.size() > 0) {
@@ -54,7 +55,7 @@ class Checkout extends Base {
         this.step("Setting tags", {
             // setting tags
             String tagname
-            BuildArgs.getEnvParam().each { env ->
+            StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 tagname = env + "-" + BuildArgs.buildNumber()
                 Git.createTag(tagname)
             }

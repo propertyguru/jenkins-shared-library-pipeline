@@ -7,7 +7,6 @@ class JobDescription {
     _description is an array. we merge the elements together and set the job description.
      */
 
-    private static def _context
     private static ArrayList<String> _description
     private static Map<String, String> lastCommitID = [:]
     private static Map<String, List<String>> jobEnvs = [
@@ -16,9 +15,6 @@ class JobDescription {
     ]
 
     static void setup() {
-        _context = Context.get()
-        Log.info("Current description: ${getDescription()}")
-        Log.info("Current description class: ${_context.currentBuild.rawBuild.project.description.getClass()}")
         _description = getDescription()
         // TODO: use job parameters to get environments
         if (_description.size() == 1) {
@@ -39,7 +35,7 @@ class JobDescription {
     }
 
     private static void set(String value) {
-        _context.currentBuild.rawBuild.project.description = value
+        StepExecutor.currentBuild().rawBuild.project.description = value
     }
 
     static void update(String environment, String value) {
@@ -52,7 +48,7 @@ class JobDescription {
     }
 
     static ArrayList<String> getDescription() {
-        String desc = _context.currentBuild.rawBuild.project.description
+        String desc = StepExecutor.currentBuild().rawBuild.project.description
         if (desc != "") {
             return desc.split('&nbsp')
         }

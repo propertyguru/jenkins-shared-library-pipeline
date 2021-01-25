@@ -2,8 +2,9 @@ package org.stages
 
 import org.common.Blueprint
 import org.common.Log
-import org.common.Output
+
 import org.common.PGbuild
+import org.common.StepExecutor
 
 class Build extends Base {
 
@@ -17,11 +18,11 @@ class Build extends Base {
         // we have few services sharing the repository.
         // we store deployPath in blueprints to get the subpath in the repo.
         Log.info("Moving to subdirectory ${Blueprint.deployPath()}")
-        this._context.dir(Blueprint.deployPath()) {
+        StepExecutor.dir(Blueprint.deployPath(), {
             // starting a new step instead of a state for unit tests etc.
             this.step("Stashing files", {
-                (new Output()).stashDir("infra", "${Blueprint.appConfig()}/*.*")
-                (new Output()).stash("pgbuild", Blueprint.pgbuild())
+                StepExecutor.stash("infra", "${Blueprint.appConfig()}/*.*")
+                StepExecutor.stash("pgbuild", Blueprint.pgbuild())
             })
 
             this.step("Running pre-build from pgbuild file", {
@@ -38,8 +39,7 @@ class Build extends Base {
                 Log.debug('Running unit-tests steps from pgbuild.')
                 PGbuild.executeSteps('unit_tests')
             })
-
-        }
+        })
     }
 
     @Override

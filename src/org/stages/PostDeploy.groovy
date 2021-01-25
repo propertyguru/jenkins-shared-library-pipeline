@@ -2,6 +2,9 @@ package org.stages
 
 import org.common.Blueprint
 import org.common.BuildArgs
+import org.common.StepExecutor
+
+import java.lang.reflect.Array
 
 class PostDeploy extends Base {
 
@@ -29,20 +32,21 @@ class PostDeploy extends Base {
     def body() {
         String testJobName = "devtoolsqa-${BuildArgs.name()}"
         this.step("Triggering test job: ${testJobName}", {
-            this._context.build job: "${testJobName}", parameters: [
+            ArrayList parameters = [
                     [$class: 'StringParameterValue', name: 'BRANCH', value: branch],
                     [$class: 'StringParameterValue', name: 'ENVIRONMENT', value: this.environment],
                     [$class: 'StringParameterValue', name: 'COUNTRY', value: countryParam],
                     [$class: 'StringParameterValue', name: 'TEST', value: testParam],
                     [$class: 'StringParameterValue', name: 'TYPE', value: typeParam]
             ]
+            StepExecutor.build(testJobName, parameters)
         })
 
     }
 
     @Override
     Boolean skip() {
-        if (Blueprint.qaJob() && this.environment in this._context.ENVIRONMENT.tokenize(',')) {
+        if (Blueprint.qaJob() && StepExecutor.env('ENVIRONMENT').tokenize(',')) {
             return false
         }
         return true
@@ -50,34 +54,58 @@ class PostDeploy extends Base {
 
 
     private void testUsersAPI() {
-        this._context.build(
-                job: "Users_API_TESTS",
-                parameters: [[$class: 'StringParameterValue', name: 'TEST_ENVIRONMENT', value: this.environment]]
-        )
+        ArrayList parameters = [
+                [$class: 'StringParameterValue', name: 'TEST_ENVIRONMENT', value: this.environment]
+        ]
+        StepExecutor.build("Users_API_TESTS", parameters)
     }
 
     private void testGuruland() {
-        this._context.catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE'){
-            this._context.parallel (
-                    "Validator tests": {
-                        this._context.build job: "devtoolsqa-qa-validator", parameters: [
-                                [$class: 'StringParameterValue', name: 'BRANCH', value: this.branch],
-                                [$class: 'StringParameterValue', name: 'ENVIRONMENT', value: this.environment],
-                                [$class: 'StringParameterValue', name: 'COUNTRY', value: this.countryParam],
-                                [$class: 'StringParameterValue', name: 'TEST', value: "${testParam}"],
-                                [$class: 'StringParameterValue', name: 'TYPE', value: "api,ui"]
-                        ]
-                    },
-                    "Mobile API tests": {
-                        this._context.build job: "devtoolsqa-qa-mobilevalidator", parameters: [
-                                [$class: 'StringParameterValue', name: 'BRANCH', value: branch],
-                                [$class: 'StringParameterValue', name: 'ENVIRONMENT', value: this.environment],
-                                [$class: 'StringParameterValue', name: 'COUNTRY', value: this.countryParam],
-                                [$class: 'StringParameterValue', name: 'TEST', value: "${testParam}"],
-                                [$class: 'StringParameterValue', name: 'TYPE', value: "api,ui"]
-                        ]
-                    }
-            )
-        }
+        StepExecutor.catchError("SUCCESS", "FAILURE", {
+            StepExecutor.parallel([
+                "Validator tests": {
+                    ArrayList parameters = [
+                            [$class: 'StringParameterValue', name: 'BRANCH', value: this.branch],
+                            [$class: 'StringParameterValue', name: 'ENVIRONMENT', value: this.environment],
+                            [$class: 'StringParameterValue', name: 'COUNTRY', value: this.countryParam],
+                            [$class: 'StringParameterValue', name: 'TEST', value: "${testParam}"],
+                            [$class: 'StringParameterValue', name: 'TYPE', value: "api,ui"]
+                    ]
+                    StepExecutor.build("devtoolsqa-qa-validator", parameters)
+                },
+                "Mobile API tests": {
+                    ArrayList parameters = [
+                            [$class: 'StringParameterValue', name: 'BRANCH', value: branch],
+                            [$class: 'StringParameterValue', name: 'ENVIRONMENT', value: this.environment],
+                            [$class: 'StringParameterValue', name: 'COUNTRY', value: this.countryParam],
+                            [$class: 'StringParameterValue', name: 'TEST', value: "${testParam}"],
+                            [$class: 'StringParameterValue', name: 'TYPE', value: "api,ui"]
+                    ]
+                    StepExecutor.build("devtoolsqa-qa-mobilevalidator", parameters)
+                }
+            ])
+            StepExecutor.parallel([
+                "Validator tests": {
+                    ArrayList parameters = [
+                            [$class: 'StringParameterValue', name: 'BRANCH', value: this.branch],
+                            [$class: 'StringParameterValue', name: 'ENVIRONMENT', value: this.environment],
+                            [$class: 'StringParameterValue', name: 'COUNTRY', value: this.countryParam],
+                            [$class: 'StringParameterValue', name: 'TEST', value: "${testParam}"],
+                            [$class: 'StringParameterValue', name: 'TYPE', value: "api,ui"]
+                    ]
+                    StepExecutor.build("devtoolsqa-qa-validator", parameters)
+                },
+                "Mobile API tests": {
+                    ArrayList parameters = [
+                            [$class: 'StringParameterValue', name: 'BRANCH', value: branch],
+                            [$class: 'StringParameterValue', name: 'ENVIRONMENT', value: this.environment],
+                            [$class: 'StringParameterValue', name: 'COUNTRY', value: this.countryParam],
+                            [$class: 'StringParameterValue', name: 'TEST', value: "${testParam}"],
+                            [$class: 'StringParameterValue', name: 'TYPE', value: "api,ui"]
+                    ]
+                    StepExecutor.build("devtoolsqa-qa-mobilevalidator", parameters)
+                }
+            ])
+        })
     }
 }

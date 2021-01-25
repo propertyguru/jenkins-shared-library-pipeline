@@ -1,19 +1,16 @@
 package org.stages
 
-import org.common.Context
 import org.common.Log
+import org.common.StepExecutor
 import org.common.slack.Message
 import org.common.slack.Slack
 
 abstract class Base implements Serializable {
-    def _context
     abstract String stage
     abstract String description
     Message stepMessage
 
-    Base() {
-        this._context = Context.get()
-    }
+    Base() {}
 
     void execute() {
         // TODO: need a way to skip the stage without getting the node.
@@ -22,19 +19,19 @@ abstract class Base implements Serializable {
         // every stage has a skip() method, which decides whether to skip the stage or not.
         if (this.skip()) {
             // we need to put the stage directive here because otherwise the skipped stage is not visible on the UI.
-            this._context.stage(this.stage) {
+            StepExecutor.stage(this.stage, {
                 Log.info("Skipping ${this.stage}")
 //                Utils.markStageSkippedForConditional(this.stage)
                 Slack.send(new Message("stage", this.description, "skipped"))
-            }
+            })
         } else {
             def slackMessage = new Message("stage", this.description, "running")
             Slack.send(slackMessage)
             try {
-                this._context.stage(this.stage) {
+                StepExecutor.stage(this.stage, {
                     this.body()
                     slackMessage.update("success")
-                }
+                })
             } catch (Exception e) {
                 slackMessage.update("failed")
                 Slack.send()

@@ -2,7 +2,6 @@ package org
 
 
 import org.common.AgentFactory
-import org.common.Context
 import org.common.agents.IAgent
 import org.stages.AnchoreScan
 import org.stages.Build
@@ -18,10 +17,8 @@ import org.stages.StaticContent
 class Pipeline {
 
     IAgent agent
-    private def _context
 
     Pipeline() {
-        this._context = Context.get()
     }
 
     def execute() {

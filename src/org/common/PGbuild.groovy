@@ -1,13 +1,10 @@
 package org.common
 
+import org.jenkinsci.plugins.workflow.steps.Step
+
 @Singleton
 class PGbuild {
-    private static def _context
     private LinkedHashMap rawContent = null
-
-    static def setup() {
-        _context = Context.get()
-    }
 
     static def load() {
         this.instance.content()
@@ -32,16 +29,16 @@ class PGbuild {
 
     static def executeSteps(String stage) {
         def stageSteps = steps(stage)
-        for (step in stageSteps) {
-            _context.sh "${step}"
+        for (String step in stageSteps) {
+            StepExecutor.sh(step)
         }
     }
 
     def content() {
-        if (rawContent == null) {
+        if (this.rawContent == null) {
             def file = Blueprint.pgbuild()
-            if (_context.fileExists(file)){
-                this.rawContent = _context.readYaml(file: file)
+            if (StepExecutor.fileExists(file)) {
+                this.rawContent = StepExecutor.readYaml(file)
             } else {
                 Log.error("${file} file not present")
             }

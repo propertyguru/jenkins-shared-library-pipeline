@@ -3,6 +3,7 @@ package org.stages
 import org.common.Blueprint
 import org.common.BuildArgs
 import org.common.Docker
+import org.common.StepExecutor
 
 class DockerImage extends Base {
 
@@ -25,14 +26,14 @@ class DockerImage extends Base {
             // TODO: Do not build if it's not "integration" environment
             // TODO: Cycle staging and production tags on Continuous Delivery and not rebuild containers
             //		 to avoid newer versions than integration in staging and production environments
-            this._context.dir(Blueprint.deployPath()) {
+            StepExecutor.dir(Blueprint.deployPath(), {
                 docker.build(this.environment)
                 if (!BuildArgs.isPRJob()) {
                     if (!Blueprint.skipDeployment()) {
                         docker.push()
                     }
                 }
-            }
+            })
         })
     }
 

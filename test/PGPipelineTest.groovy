@@ -33,6 +33,7 @@ class PGPipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod("slackUserIdFromEmail", [Map.class], {
             return "UASDASDAN"
         })
+        helper.registerAllowedMethod("env.getProperty", [String])
         helper.registerAllowedMethod("slackSend", [Map.class], {
             return new SlackResponse()
         })

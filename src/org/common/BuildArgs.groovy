@@ -2,14 +2,9 @@ package org.common
 
 @Singleton
 class BuildArgs {
-    private static def _context
-
-    static void setup() {
-        _context = Context.get()
-    }
 
     static String jobName() {
-        return _context.env.JOB_NAME
+        return StepExecutor.env('JOB_NAME')
     }
 
     static String component(){
@@ -41,23 +36,19 @@ class BuildArgs {
     }
 
     static String buildURL() {
-        return _context.env.BUILD_URL
+        return StepExecutor.env('BUILD_URL')
     }
 
     static Integer buildNumber() {
-        return _context.env.BUILD_NUMBER as Integer
+        return StepExecutor.env('BUILD_NUMBER') as Integer
     }
 
     static String buildUser() {
         return "Prince Tyagi"
     }
 
-    static ArrayList<String> getEnvParam() {
-        return _context.ENVIRONMENT.tokenize(',')
-    }
-
     static Boolean isPRJob() {
-        if (_context.env.ghprbSourceBranch) {
+        if (StepExecutor.env('ghprbSourceBranch')) {
             return true
         }
         return false

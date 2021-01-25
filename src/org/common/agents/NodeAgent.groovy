@@ -1,28 +1,18 @@
 package org.common.agents
 
-import org.common.Context
+import org.common.StepExecutor
 
 class NodeAgent implements IAgent {
-    def context
-    def environment
-    def label
+    String environment
+    String label
 
     NodeAgent(environment) {
-        this.context = Context.get()
         this.environment = environment
         this.label = "android-slave-01"
     }
 
-    def withSlave(body) {
-        this.context.node(this.label) {
-            this.context.wrap([$class: 'TimestamperBuildWrapper']) {
-                this.context.wrap([$class: 'AnsiColorBuildWrapper']) {
-                    this.context.wrap([$class: 'BuildUser']) {
-                        body()
-                    }
-                }
-            }
-        }
+    def withSlave(def body) {
+        StepExecutor.node(this.label, body)
     }
 
 }

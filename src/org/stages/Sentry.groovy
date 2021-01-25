@@ -3,6 +3,7 @@ package org.stages
 import org.common.BuildArgs
 import org.common.Git
 import org.common.Salt
+import org.common.StepExecutor
 
 class Sentry extends Base  {
 
@@ -24,7 +25,7 @@ class Sentry extends Base  {
     @Override
     Boolean skip() {
         if (this.environment == "integration" &&
-                this.environment in this._context.ENVIRONMENT.tokenize(',')) {
+                this.environment in StepExecutor.env('ENVIRONMENT').tokenize(',')) {
             return false
         }
         return true

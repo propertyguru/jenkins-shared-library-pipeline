@@ -9,6 +9,7 @@ repositories {
     mavenCentral()
     jcenter()
     maven { url 'https://repo.jenkins-ci.org/releases/' }
+    maven { url 'https://repo.spring.io/plugins-release/' }
 }
 
 dependencies {
@@ -33,12 +34,16 @@ dependencies {
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-aggregator', version: '2.6'
     testImplementation group: 'org.jenkins-ci.plugins', name: 'hidden-parameter', version: '0.0.4'
     testImplementation group: 'org.jenkins-ci.plugins', name: 'extended-choice-parameter', version: '0.82', ext: 'jar'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.8.8'
 }
 
 sourceSets {
     main {
         groovy {
             srcDirs = ['src', 'vars']
+        }
+        resources {
+            srcDirs = ['resources']
         }
     }
 

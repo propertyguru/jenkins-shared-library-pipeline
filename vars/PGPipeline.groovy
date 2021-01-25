@@ -5,7 +5,9 @@ import org.common.Context
 import org.common.Git
 import org.common.Log
 import org.common.PGbuild
+import org.common.StepExecutor
 import org.common.slack.Slack
+import org.jenkinsci.plugins.workflow.steps.Step
 
 def call(body) {
 
@@ -47,7 +49,7 @@ def call(body) {
                     name: 'SLACK_ID'
             ]
     ]
-    
+
     properties([
             [$class: 'JiraProjectProperty', siteName: 'https://propertyguru.atlassian.net/'],
             [$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', numToKeepStr: '15', artifactNumToKeepStr: '15']],
@@ -56,19 +58,16 @@ def call(body) {
     ])
 
     Context.set(this)
+    StepExecutor.setup()
     Log.setup()
-    BuildArgs.setup()
-    PGbuild.setup()
-    Blueprint.setup()
-    Git.setup()
     Slack.setup()
 
-    currentBuild.changeSets.clear()
+    StepExecutor.currentBuild().changeSets.clear()
 
     (new Pipeline()).execute()
 
-    def text = libraryResource('resources/default_values.yaml')
-    Log.error(text)
+//    def text = libraryResource('resources/default_values.yaml')
+//    Log.error(text)
 //    def a = new YamlSlurper().parseText(text)
 //    println(a)
 //    def jobs = a['pipeline']['JOBS']

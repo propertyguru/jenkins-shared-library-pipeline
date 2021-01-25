@@ -1,11 +1,12 @@
 package org.common.slack
 
+import io.jenkins.cli.shaded.org.glassfish.tyrus.core.Utils
 import org.common.BuildArgs
-import org.common.Context
+import org.common.Log
+import org.common.StepExecutor
 
 @Singleton
 class Slack {
-    static private def context
     static private ArrayList<String> channels
     static private ArrayList<String> users
     static private ArrayList<Message> messages
@@ -13,13 +14,12 @@ class Slack {
     static private String attachments = null
 
     static def setup() {
-        context = Context.get()
         messages = [
                 new Message("heading", "ads-product"),
                 new Message("sectionWithFields", "", "running", [
                         "*Started By:*\n${BuildArgs.buildUser()}",
-                        "*Branch:*\n${context.BRANCH}",
-                        "*Environment:*\n${context.ENVIRONMENT}",
+                        "*Branch:*\n${StepExecutor.env('BRANCH')}",
+                        "*Environment:*\n${StepExecutor.env('ENVIRONMENT')}",
                         "*Jenkins URL:*\n${BuildArgs.buildURL()}"
                 ] as ArrayList<String>),
                 new Message("divider")
@@ -29,7 +29,7 @@ class Slack {
         users = ["prince@propertyguru.com.sg"]
         ArrayList<String> userEmails = []
         users = users.each { user ->
-            String userEmail = context.slackUserIdFromEmail(email: user, tokenCredentialId: 'slack-bot-token')
+            String userEmail = StepExecutor.slackUserIdFromEmail(user)
             userEmails.add(userEmail)
         }
         users = userEmails
@@ -38,7 +38,7 @@ class Slack {
         channels = ["#prince-test", "#test-please-delete"]
 
         // build the blocks
-        def blocks = buildBlocks()
+        ArrayList blocks = buildBlocks()
         // send the message to channels
         sendMessage(channels, blocks)
     }
@@ -64,36 +64,25 @@ class Slack {
     // for users, simply use @username.
     private static def sendMessage(ArrayList channels, ArrayList blocks) {
         ArrayList responses = []
-        channels.each { channel ->
-            responses.add(context.slackSend(
-                    channel: channel,
-                    blocks: blocks,
-                    tokenCredentialId: 'slack-bot-token'
-            ))
+        channels.each { String channel ->
+            responses.add(
+                    StepExecutor.slackSend(channel, blocks)
+            )
         }
         slackResponses = responses
     }
 
     static def uploadFile(String name, String text) {
-        context.writeFile(file: name, text: text)
+        StepExecutor.writeFile(name, text)
         slackResponses.each { response ->
-            context.slackUploadFile(
-                    channel: response.threadId,
-                    filePath: "changelog.txt"
-            )
+            StepExecutor.slackUploadFile(response.threadId as String, "changelog.txt")
         }
     }
 
     private static def updateMessage() {
         ArrayList blocks = buildBlocks()
         slackResponses.each { response ->
-            context.slackSend(
-                    channel: response.channelId,
-                    timestamp: response.ts,
-                    blocks: blocks,
-                    tokenCredentialId: 'slack-bot-token',
-                    attachments: attachments
-            )
+            StepExecutor.slackSend(response.channelId as String, blocks, response.ts as String, attachments)
         }
     }
 

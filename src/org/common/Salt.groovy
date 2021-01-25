@@ -1,11 +1,7 @@
 package org.common
 
 class Salt {
-    private def _context
-
-    Salt() {
-        this._context = Context.get()
-    }
+    Salt() {}
 
     def sync() {
         saltCall("saltutil.sync_all > /dev/null")
@@ -16,18 +12,18 @@ class Salt {
         return Utils.toJson(text)
     }
 
-    def saltCall(String cmd){
+    void saltCall(String cmd){
         def log_level = Log.level() == "debug" ? '-l debug' : ''
         cmd = "salt-call ${log_level} ${cmd}"
         Log.info(cmd)
-        this._context.sh(cmd)
+        StepExecutor.sh(cmd)
     }
 
-    def saltCallWithOutput(String cmd){
+    String saltCallWithOutput(String cmd){
         String log_level = Log.level() == "debug" ? '-l debug' : ''
         cmd = "salt-call ${log_level} ${cmd}"
         Log.info(cmd)
-        this._context.sh(returnStdout: true, script: cmd)
+        return StepExecutor.shWithOutput(cmd)
     }
 
 }
