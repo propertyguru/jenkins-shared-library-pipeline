@@ -10,7 +10,7 @@ class DockerAgent implements IAgent {
 
     DockerAgent(environment) {
         this.image = "pgjenkins:slave1"
-        this.args = "-u root -v /etc/salt:/etc/salt -v /var/jenkins_home/.aws/:/root/.aws/ " +
+        this.args = "-v /etc/salt:/etc/salt -v /var/jenkins_home/.aws/:/root/.aws/ " +
                 "-v /var/run/docker.sock:/var/run/docker.sock -v \$HOME/.ssh:/root/.ssh"
         this.environment = environment
         this.label = "env:${this.environment}"
