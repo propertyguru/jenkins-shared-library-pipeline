@@ -1,5 +1,7 @@
 package org.common
 
+import com.cloudbees.groovy.cps.NonCPS
+
 /*
 Can't use Log class in StepExecutor because Log class hasnt been setup yet.
  */
@@ -13,7 +15,10 @@ class StepExecutor implements Serializable {
     }
 
     static Boolean fileExists(String filename) {
-        return _context.fileExists(filename)
+        if (_context.fileExists(filename)) {
+            return true
+        }
+        return false
     }
 
     static void stage(String name, def body) {
@@ -115,9 +120,7 @@ class StepExecutor implements Serializable {
         _context.node(label) {
             wrap([$class: 'TimestamperBuildWrapper'], {
                 wrap([$class: 'AnsiColorBuildWrapper'], {
-                    wrap([$class: 'BuildUser'],
-                            body()
-                    )
+                    wrap([$class: 'BuildUser'], body)
                 })
             })
         }
@@ -174,12 +177,16 @@ class StepExecutor implements Serializable {
         )
     }
 
-    static void withUsernamePassword(String credentialsID, String user, String password, def body) {
+    static void withUsernamePassword(String credentialsID, def body) {
         _context.withCredentials([
-            _context.usernamePassword(credentialsId: credentialsID, usernameVariable: user, passwordVariable: password) {
-                body()
-            }
-        ])
+            _context.usernamePassword(
+                credentialsId: credentialsID,
+                usernameVariable: "USERNAME",
+                passwordVariable: "PASSWORD"
+            )]) {
+                println("${_context.USERNAME}")
+                body("${_context.USERNAME}", "${_context.PASSWORD}")
+        }
     }
 
     static void parallel(Map branches) {

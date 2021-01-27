@@ -75,7 +75,7 @@ class Slack {
     static def uploadFile(String name, String text) {
         StepExecutor.writeFile(name, text)
         slackResponses.each { response ->
-            StepExecutor.slackUploadFile(response.threadId as String, "changelog.txt")
+            StepExecutor.slackUploadFile(response.threadId as String, "${name}.txt")
         }
     }
 

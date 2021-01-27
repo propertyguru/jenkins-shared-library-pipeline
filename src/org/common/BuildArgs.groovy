@@ -23,6 +23,10 @@ class BuildArgs {
         }
     }
 
+    static def name() {
+        return "${component()}-${subcomponent()}"
+    }
+
     static String appname() {
         return "pg_${component()}_${subcomponent()}"
     }

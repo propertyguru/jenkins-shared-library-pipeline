@@ -28,11 +28,11 @@ class Checkout extends Base {
         })
 
         this.step("Checking out code", {
-            String tag = ""
+            String tag = null
             StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 tag = Git.getLastTag(env)
             }
-            if (tag != "") {
+            if (tag != null) {
                 extensions.add([$class: 'ChangelogToBranch', options: [compareRemote: 'refs', compareTarget: "tags/${tag}"]])
                 Log.info("Added extension: ChangelogToBranch")
             }

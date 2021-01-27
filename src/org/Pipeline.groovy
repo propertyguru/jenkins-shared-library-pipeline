@@ -2,6 +2,7 @@ package org
 
 
 import org.common.AgentFactory
+import org.common.Log
 import org.common.agents.IAgent
 import org.stages.AnchoreScan
 import org.stages.Build
@@ -18,21 +19,21 @@ class Pipeline {
 
     IAgent agent
 
-    Pipeline() {
-    }
+    Pipeline() {}
 
     def execute() {
         this.agent = new AgentFactory("integration").getAgent()
         this.agent.withSlave({
+            Log.info("Inside build")
             new Checkout().execute()
             new Build().execute()
             new Sonarqube("integration").execute()
             new DockerImage("integration").execute()
             new StaticContent("integration").execute()
-//            new AnchoreScan().execute()
         })
 
-        ["integration", "staging", "production"].each{ String env ->
+
+        ["integration", "staging", "production"].each { String env ->
             this.agent = new AgentFactory(env).getAgent()
             this.agent.withSlave({
                 new Deploy(env).execute()
@@ -41,7 +42,6 @@ class Pipeline {
                 new PostDeploy(env).execute()
             })
         }
-
     }
 
 }

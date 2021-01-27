@@ -1,5 +1,7 @@
 package org.common.agents
 
+import com.cloudbees.groovy.cps.impl.CpsClosure
+import org.common.Log
 import org.common.StepExecutor
 
 class DockerAgent implements IAgent {
@@ -9,24 +11,18 @@ class DockerAgent implements IAgent {
     String environment
 
     DockerAgent(environment) {
-        this.image = "pgjenkins:slave1"
-        this.args = "-v /etc/salt:/etc/salt -v /var/jenkins_home/.aws/:/root/.aws/ " +
-                "-v /var/run/docker.sock:/var/run/docker.sock -v \$HOME/.ssh:/root/.ssh"
+        this.image = "pgjenkins:princetest"
+        this.args = "-v /etc/salt:/etc/salt -v /var/jenkins_home/.aws/:\$HOME/.aws/ " +
+                "-v /var/run/docker.sock:/var/run/docker.sock -v \$HOME/.ssh:\$HOME/.ssh"
         this.environment = environment
         this.label = "env:${this.environment}"
     }
 
     def withSlave(body) {
         StepExecutor.node(this.label, {
-            StepExecutor.wrap([$class: 'TimestamperBuildWrapper'], {
-                StepExecutor.wrap([$class: 'AnsiColorBuildWrapper'], {
-                    StepExecutor.wrap([$class: 'BuildUser'], {
-                        String hostname = StepExecutor.shWithOutput("hostname")
-                        this.args += " --hostname ${hostname}"
-                        StepExecutor.docker(this.image, this.args, body())
-                    })
-                })
-            })
+            String hostname = StepExecutor.shWithOutput("hostname")
+            this.args += " --hostname ${hostname}"
+            StepExecutor.docker(this.image, this.args, body)
         })
     }
 

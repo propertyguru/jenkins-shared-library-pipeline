@@ -45,7 +45,7 @@ class Git {
             Log.info("Failure running: ${cmd}")
             Log.info(e)
         }
-        return ""
+        return null
     }
 
     static String getCommitID() {

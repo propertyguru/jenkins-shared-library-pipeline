@@ -25,8 +25,8 @@ class Docker {
     }
 
     def login() {
-        StepExecutor.withUsernamePassword('docker-hub', 'USERNAME', 'PASSWORD', {
-            StepExecutor.sh("docker login --username ${USERNAME} --password ${PASSWORD}")
+        StepExecutor.withUsernamePassword('docker-hub', { String user, pass ->
+            StepExecutor.sh("docker login --username ${user} --password ${pass}")
         })
     }
 
