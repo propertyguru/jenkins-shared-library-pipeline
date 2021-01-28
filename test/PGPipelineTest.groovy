@@ -22,6 +22,7 @@ class PGPipelineTest extends BasePipelineTest {
                     visibleItemCount: 10
             ]
         })
+        helper.registerAllowedMethod("ansiColor", [String, Closure.class])
         helper.registerAllowedMethod("booleanParam", [Map.class], {
             [
                     defaultValue: false,
@@ -33,7 +34,7 @@ class PGPipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod("slackUserIdFromEmail", [Map.class], {
             return "UASDASDAN"
         })
-        helper.registerAllowedMethod("env.getProperty", [String])
+        helper.registerAllowedMethod("slackUploadFile", [Map.class])
         helper.registerAllowedMethod("slackSend", [Map.class], {
             return new SlackResponse()
         })
@@ -118,10 +119,6 @@ class PGPipelineTest extends BasePipelineTest {
                 new JsonBuilder(blueprintData).toString(), 0)
 
 
-        binding.setVariable("LOGLEVEL", "true")
-        binding.setVariable("SLACK_ID", "XYZ")
-        binding.setVariable("BRANCH", "master")
-        binding.setVariable("ENVIRONMENT", "integration")
         binding.setVariable('currentBuild', [
                 absoluteUrl: 'http://example.com/dummy',
                 buildVariables: [:],
@@ -149,9 +146,18 @@ class PGPipelineTest extends BasePipelineTest {
                 timeInMillis: 1,
                 upstreamBuilds: [],
         ])
+        binding.setVariable("LOGLEVEL", "true")
+        binding.setVariable("SLACK_ID", "XYZ")
+        binding.setVariable("BRANCH", "master")
+        binding.setVariable("ENVIRONMENT", "integration")
+
         Map env = [:]
         env['JOB_NAME'] = "devtools-ads/product/build-test"
         env['BUILD_URL'] = "https://jenkins.guruestate.com/job/devtools-ads/job/product/job/build-test/290/"
+        env['LOGLEVEL'] = "true"
+        env['SLACK_ID'] = "XYZ"
+        env["BRANCH"] = "master"
+        env["ENVIRONMENT"] = "integration"
         binding.setVariable('env', env)
     }
 
@@ -167,11 +173,26 @@ class PGPipelineTest extends BasePipelineTest {
 
 @SuppressWarnings(['EmptyMethod', 'MethodReturnTypeRequired', 'UnusedMethodParameter'])
 class SlackResponse implements Serializable {
-    static String getChannelId() {
-        return "#prince-test"
+
+    String channelId
+    String ts
+    String threadId
+
+    SlackResponse() {
+        this.channelId = "#prince-test"
+        this.ts = "ts"
+        this.threadId = "threadId"
     }
 
-    static String getTs() {
-        return "ts"
+    String getChannelId() {
+        return this.channelId
+    }
+
+    String getTs() {
+        return this.ts
+    }
+
+    String getThreadId() {
+        return this.threadId
     }
 }

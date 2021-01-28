@@ -149,13 +149,13 @@ class StepExecutor implements Serializable {
         )
     }
 
-    static void slackSend(String channel, ArrayList blocks, String timestamp="", String attachments=null) {
-        _context.slackSend(
+    // TODO: change def to SlackResponse object.
+    static def slackSend(String channel, ArrayList blocks, String timestamp="") {
+        return _context.slackSend(
                 channel: channel,
                 timestamp: timestamp,
                 blocks: blocks,
-                tokenCredentialId: 'slack-bot-token',
-                attachments: attachments
+                tokenCredentialId: 'slack-bot-token'
         )
     }
 
@@ -184,8 +184,7 @@ class StepExecutor implements Serializable {
                 usernameVariable: "USERNAME",
                 passwordVariable: "PASSWORD"
             )]) {
-                println("${_context.USERNAME}")
-                body("${_context.USERNAME}", "${_context.PASSWORD}")
+                body(_context.USERNAME, _context.PASSWORD)
         }
     }
 

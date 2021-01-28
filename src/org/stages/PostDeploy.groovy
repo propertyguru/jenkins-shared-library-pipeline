@@ -2,6 +2,7 @@ package org.stages
 
 import org.common.Blueprint
 import org.common.BuildArgs
+import org.common.Log
 import org.common.StepExecutor
 
 import java.lang.reflect.Array
@@ -39,7 +40,8 @@ class PostDeploy extends Base {
                     [$class: 'StringParameterValue', name: 'TEST', value: testParam],
                     [$class: 'StringParameterValue', name: 'TYPE', value: typeParam]
             ]
-            StepExecutor.build(testJobName, parameters)
+            Log.info("Triggering job: ${testJobName}")
+//            StepExecutor.build(testJobName, parameters)
         })
 
     }

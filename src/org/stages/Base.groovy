@@ -44,8 +44,6 @@ abstract class Base implements Serializable {
 
     void step(name, closure) {
         try {
-            println(this.stepMessage.getClass())
-            println(this.stepMessage)
             if (this.stepMessage == null) {
                 this.stepMessage = new Message("step", name)
                 Slack.send(this.stepMessage)
@@ -56,7 +54,7 @@ abstract class Base implements Serializable {
             closure()
         } catch (Exception e) {
             Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
-            Log.info("Running final of step ${name}")
+            Log.info("Step exception: ${name}")
             Log.error(e.toString())
             Log.info(e.printStackTrace())
         }

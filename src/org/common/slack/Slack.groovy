@@ -1,8 +1,6 @@
 package org.common.slack
 
-import io.jenkins.cli.shaded.org.glassfish.tyrus.core.Utils
 import org.common.BuildArgs
-import org.common.Log
 import org.common.StepExecutor
 
 @Singleton
@@ -11,7 +9,6 @@ class Slack {
     static private ArrayList<String> users
     static private ArrayList<Message> messages
     static private ArrayList slackResponses
-    static private String attachments = null
 
     static def setup() {
         messages = [
@@ -75,14 +72,14 @@ class Slack {
     static def uploadFile(String name, String text) {
         StepExecutor.writeFile(name, text)
         slackResponses.each { response ->
-            StepExecutor.slackUploadFile(response.threadId as String, "${name}.txt")
+            StepExecutor.slackUploadFile(response.threadId as String, "${name}")
         }
     }
 
     private static def updateMessage() {
         ArrayList blocks = buildBlocks()
         slackResponses.each { response ->
-            StepExecutor.slackSend(response.channelId as String, blocks, response.ts as String, attachments)
+            StepExecutor.slackSend(response.channelId as String, blocks, response.ts as String)
         }
     }
 

@@ -21,18 +21,17 @@ class Checkout extends Base {
 
     @Override
     def body() {
-
         this.step("Loading data", {
             // TODO: find a better place to load blueprints. It has to be done on a node with access to salt-call.
             Blueprint.load()
         })
 
         this.step("Checking out code", {
-            String tag = null
+            String tag = ""
             StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 tag = Git.getLastTag(env)
             }
-            if (tag != null) {
+            if (tag != "") {
                 extensions.add([$class: 'ChangelogToBranch', options: [compareRemote: 'refs', compareTarget: "tags/${tag}"]])
                 Log.info("Added extension: ChangelogToBranch")
             }
@@ -42,9 +41,18 @@ class Checkout extends Base {
         this.step("Sharing changelog on slack", {
             StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 ArrayList<String> changelog = Git.getChangelog(env)
-                String msg
+                String msg = ""
                 if (changelog.size() > 0) {
-                    msg = Utils.toString(changelog)
+                    changelog.each { def cl ->
+                        msg += "\nSHA: ${cl['sha']}"
+                        msg += "\nAuthor: ${cl['author']}"
+                        msg += "\nAuthor Email: ${cl['authorEmail']}"
+                        msg += "\nMessage Title: ${cl['messageTitle']}"
+                        msg += "\nMessage Body: ${cl['messageBody']}"
+                        msg += "\nChanged Files: ${cl['changedFiles']}"
+                        msg += "\n"
+                    }
+//                    msg = Utils.toString(changelog)
                 } else {
                     msg = "No new changes in ${env}"
                 }
@@ -57,7 +65,7 @@ class Checkout extends Base {
             String tagname
             StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 tagname = env + "-" + BuildArgs.buildNumber()
-                Git.createTag(tagname)
+//                Git.createTag(tagname)
             }
         })
 

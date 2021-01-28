@@ -6,10 +6,12 @@ group = "com.pg"
 version = "1.0.0"
 
 repositories {
-    mavenCentral()
-    jcenter()
+    maven { url 'http://bits.netbeans.org/maven2/' }
     maven { url 'https://repo.jenkins-ci.org/releases/' }
-    maven { url 'https://repo.spring.io/plugins-release/' }
+    jcenter()
+    maven { url 'https://mvnrepository.com/artifact/' }
+    mavenLocal()
+//    maven { url 'https://repo.spring.io/plugins-release/' }
 }
 
 dependencies {
@@ -35,7 +37,7 @@ dependencies {
     testImplementation group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-aggregator', version: '2.6'
     testImplementation group: 'org.jenkins-ci.plugins', name: 'hidden-parameter', version: '0.0.4'
     testImplementation group: 'org.jenkins-ci.plugins', name: 'extended-choice-parameter', version: '0.82', ext: 'jar'
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.8.8'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.7.7'
 }
 
 sourceSets {
@@ -54,8 +56,8 @@ sourceSets {
         }
     }
 }
-test {
 
+test {
     // delete old test reports
     dependsOn cleanTest
 

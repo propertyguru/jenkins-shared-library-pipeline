@@ -45,7 +45,7 @@ class Git {
             Log.info("Failure running: ${cmd}")
             Log.info(e)
         }
-        return null
+        return ""
     }
 
     static String getCommitID() {
@@ -67,12 +67,12 @@ class Git {
                 from = "HEAD~10"
             }
             String cmd = "git log ...${from} --name-only --no-merges " +
-                    "--pretty=format:'---\ncommit %H%nauthor %aN%nauthorEmail %aE%ncommitter %cN%ncommitteremail " +
+                    "--pretty=format:'|||\ncommit %H%nauthor %aN%nauthorEmail %aE%ncommitter %cN%ncommitteremail " +
                     "%cE%nsubject %s%nbody %B%nfiles'"
             String data = StepExecutor.shWithOutput(cmd)
             changelog[environment] = []
-            data.tokenize("---").each { String log ->
-                changelog[environment].add(new Changelog(log).toString())
+            data.tokenize("|||").each { String log ->
+                changelog[environment].add(new Changelog(log).parse())
             }
         }
         return changelog[environment]
@@ -116,19 +116,19 @@ class Changelog {
                 this.changedFiles.add(line)
             }
             if (line.startsWith('commit ')) {
-                this.sha = parse(line)
+                this.sha = parseLine(line)
             } else if (line.startsWith('author ')){
-                this.author = parse(line)
+                this.author = parseLine(line)
             } else if (line.startsWith('authorEmail ')) {
-                this.authorEmail = parse(line)
+                this.authorEmail = parseLine(line)
             } else if (line.startsWith('committer ')){
-                this.committer = parse(line)
+                this.committer = parseLine(line)
             } else if (line.startsWith('committeremail ')) {
-                this.committerEmail = parse(line)
+                this.committerEmail = parseLine(line)
             } else if (line.startsWith('subject ')) {
-                this.messageTitle = parse(line)
+                this.messageTitle = parseLine(line)
             } else if (line.startsWith('body ')) {
-                this.messageBody = parse(line)
+                this.messageBody = parseLine(line)
             } else if (line.startsWith('files')) {
                 fileFlag = true
                 this.changedFiles = []
@@ -137,11 +137,11 @@ class Changelog {
     }
 
     @NonCPS
-    private static String parse(String data) {
+    private static String parseLine(String data) {
         return data.tokenize(' ')[1..-1].join(' ').trim()
     }
 
-    String toString() {
+    Map parse() {
         return [
                 "sha": this.sha,
                 "author": this.author,
