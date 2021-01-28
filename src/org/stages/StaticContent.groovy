@@ -31,6 +31,7 @@ class StaticContent extends Base {
                         Log.debug("Uploading Static content to S3 to ${env}")
                         (new Salt()).saltCallWithOutput("shipit.static_content ${Blueprint.component()} " +
                                 "${Blueprint.subcomponent()} ${env} ${env}_static/app/")
+                        // cleanup
                         StepExecutor.sh("rm -rf ./${env}_static")
                     }
                 }

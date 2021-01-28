@@ -20,13 +20,11 @@ class Deploy extends Base {
     @Override
     def body() {
         this.step("Promoting application", {
-            Log.info("promotion")
 //            (new Salt()).sync()
 //            (new Salt()).saltCallWithOutput("shipit.promote app_name=pg_${Blueprint.component()}_${Blueprint.subcomponent()}")
         })
 
         this.step("Deploying service", {
-            Log.info("Kubernetes type deployment")
             Kubernetes.promote(this.environment)
             Kubernetes.deploy()
         })
@@ -46,15 +44,12 @@ class Deploy extends Base {
 @Singleton
 class Kubernetes {
     static void promote(String environment) {
-        Log.info("Inside promote function")
         StepExecutor.unstash("infra")
-        Log.info("Unstashing")
         String filename = "./${Blueprint.appConfig()}/${environment}.env"
         if (StepExecutor.fileExists(filename)) {
             String cmd = "shipit.deploy app_name='pg_${Blueprint.component()}_${Blueprint.subcomponent()}' config_file=${filename}"
             Log.info(cmd)
 //            (new Salt()).saltCallWithOutput(cmd)
-            Log.info("inside fileexists.")
         } else {
             Log.info("${filename} is missing from infra folder.")
         }

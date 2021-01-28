@@ -49,17 +49,26 @@ class Slack {
         updateMessage()
     }
 
+    static void sendStageBlock(ArrayList<Message> stageBlock) {
+        stageBlock.each { Message msg ->
+            messages.add(msg)
+        }
+        updateMessage()
+    }
+
     private static ArrayList buildBlocks() {
         def blocks = []
         messages.each { msg ->
-            blocks.add(msg.format())
+            if (msg != null) {
+                blocks.add(msg.format())
+            }
         }
         return blocks
     }
 
     // sendMessage works with channels and users.
     // for users, simply use @username.
-    private static def sendMessage(ArrayList channels, ArrayList blocks) {
+    private static void sendMessage(ArrayList channels, ArrayList blocks) {
         ArrayList responses = []
         channels.each { String channel ->
             responses.add(
@@ -76,7 +85,7 @@ class Slack {
         }
     }
 
-    private static def updateMessage() {
+    static def updateMessage() {
         ArrayList blocks = buildBlocks()
         slackResponses.each { response ->
             StepExecutor.slackSend(response.channelId as String, blocks, response.ts as String)

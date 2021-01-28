@@ -44,9 +44,17 @@ class Pipeline {
         ["integration", "staging", "production"].each { String env ->
             this.agent = new AgentFactory(env).getAgent()
             this.agent.withSlave({
-                new Deploy(env).execute()
-                new Kong(env).execute()
-                new Sentry(env).execute()
+                StepExecutor.parallel([
+                        "deploy": {
+                            new Deploy(env).execute()
+                        },
+                        "kong": {
+                            new Kong(env).execute()
+                        },
+                        "sentry": {
+                            new Sentry(env).execute()
+                        }
+                ])
                 new PostDeploy(env).execute()
             })
         }

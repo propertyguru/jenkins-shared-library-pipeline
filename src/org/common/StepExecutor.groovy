@@ -199,11 +199,11 @@ class StepExecutor implements Serializable {
     }
 
     static String env(String name) {
+        // TODO: this if block is for the unit-tests to pass.
+        if (_context.env instanceof Map) {
+            return _context.env.get(name)
+        }
         return _context.env.getProperty(name)
-    }
-
-    static void setEnv(String name, String value) {
-        _context.env.setProperty(name, value)
     }
 
     static Map currentBuild() {
