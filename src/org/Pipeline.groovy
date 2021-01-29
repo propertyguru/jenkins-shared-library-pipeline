@@ -40,8 +40,8 @@ class Pipeline {
             ])
         })
 
-
-        ["integration", "staging", "production"].each { String env ->
+//        ["integration", "staging", "production"]
+        ["integration"].each { String env ->
             this.agent = new AgentFactory(env).getAgent()
             this.agent.withSlave({
                 StepExecutor.parallel([

@@ -8,6 +8,8 @@ import org.common.StepExecutor
 import org.common.Utils
 import org.common.slack.Slack
 
+import java.lang.reflect.Array
+
 class Checkout extends Base {
 
     private ArrayList extensions
@@ -43,18 +45,18 @@ class Checkout extends Base {
                 ArrayList<String> changelog = Git.getChangelog(env)
                 String msg = ""
                 if (changelog.size() > 0) {
-                    changelog.each { def cl ->
-                        msg += "\nSHA: ${cl['sha']}"
+                    changelog.each { Map cl ->
                         msg += "\nAuthor: ${cl['author']}"
                         msg += "\nAuthor Email: ${cl['authorEmail']}"
-                        msg += "\nMessage Title: ${cl['messageTitle']}"
-                        msg += "\nMessage Body: ${cl['messageBody']}"
-                        msg += "\nChanged Files: ${cl['changedFiles']}"
+                        msg += "\n*${cl['messageBody']}*"
+                        msg += "\nChanged Files:"
+                        cl['changedFiles'].each { String cf ->
+                            msg += "\n - ${cf}"
+                        }
                         msg += "\n"
                     }
-//                    msg = Utils.toString(changelog)
                 } else {
-                    msg = "No new changes in ${env}"
+                    msg = "No changes in ${env}"
                 }
                 Slack.uploadFile("${env}-changelog.txt", "${msg}")
             }

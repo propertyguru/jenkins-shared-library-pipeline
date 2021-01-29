@@ -11,11 +11,11 @@ class DockerAgent implements IAgent {
     String environment
 
     DockerAgent(environment) {
-        this.image = "pgjenkins:princetest"
+        this.image = "pgjenkins:slave"
         this.args = "-v /etc/salt:/etc/salt -v /var/jenkins_home/.aws/:\$HOME/.aws/ " +
                 "-v /var/run/docker.sock:/var/run/docker.sock -v \$HOME/.ssh:\$HOME/.ssh"
         this.environment = environment
-        this.label = "env:${this.environment}"
+        this.label = "env:new_${this.environment}"
     }
 
     def withSlave(body) {

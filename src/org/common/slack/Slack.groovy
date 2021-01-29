@@ -1,28 +1,27 @@
 package org.common.slack
 
 import org.common.BuildArgs
+import org.common.Log
 import org.common.StepExecutor
+import org.common.Utils
 
 @Singleton
-class Slack {
+class Slack implements Serializable {
     static private ArrayList<String> channels
     static private ArrayList<String> users
-    static private ArrayList<Message> messages
     static private ArrayList slackResponses
 
     static def setup() {
-        messages = [
-                new Message("heading", "ads-product"),
-                new Message("sectionWithFields", "", "running", [
-                        "*Started By:*\n${BuildArgs.buildUser()}",
-                        "*Branch:*\n${StepExecutor.env('BRANCH')}",
-                        "*Environment:*\n${StepExecutor.env('ENVIRONMENT')}",
-                        "*Jenkins URL:*\n${BuildArgs.buildURL()}"
-                ] as ArrayList<String>),
-                new Message("divider")
-        ]
-
+        // Setting up slack Message
+        Message.addHeading("ads-product")
+        Message.addDetails([
+                "*Started By:*\n${BuildArgs.buildUser()}",
+                "*Branch:*\n${StepExecutor.env('BRANCH')}",
+                "*Environment:*\n${StepExecutor.env('ENVIRONMENT')}",
+                "*Jenkins URL:*\n${BuildArgs.buildURL()}"
+        ] as ArrayList<String>)
         // get users from blueprints and get slack id of each user
+        // TODO: this needs to be the build user, not my email.
         users = ["prince@propertyguru.com.sg"]
         ArrayList<String> userEmails = []
         users = users.each { user ->
@@ -30,49 +29,19 @@ class Slack {
             userEmails.add(userEmail)
         }
         users = userEmails
-
         // get channels from blueprints
         channels = ["#prince-test", "#test-please-delete"]
-
-        // build the blocks
-        ArrayList blocks = buildBlocks()
         // send the message to channels
-        sendMessage(channels, blocks)
-    }
-
-    static def send(Message msg=null) {
-        // append msg
-        if (msg != null) {
-            messages.add(msg)
-        }
-        // send message and save response to slack response variable
-        updateMessage()
-    }
-
-    static void sendStageBlock(ArrayList<Message> stageBlock) {
-        stageBlock.each { Message msg ->
-            messages.add(msg)
-        }
-        updateMessage()
-    }
-
-    private static ArrayList buildBlocks() {
-        def blocks = []
-        messages.each { msg ->
-            if (msg != null) {
-                blocks.add(msg.format())
-            }
-        }
-        return blocks
+        sendMessage()
     }
 
     // sendMessage works with channels and users.
     // for users, simply use @username.
-    private static void sendMessage(ArrayList channels, ArrayList blocks) {
+    static void sendMessage() {
         ArrayList responses = []
         channels.each { String channel ->
             responses.add(
-                    StepExecutor.slackSend(channel, blocks)
+                    StepExecutor.slackSend(channel, Message.toBlocks())
             )
         }
         slackResponses = responses
@@ -86,7 +55,7 @@ class Slack {
     }
 
     static def updateMessage() {
-        ArrayList blocks = buildBlocks()
+        ArrayList blocks = Message.toBlocks()
         slackResponses.each { response ->
             StepExecutor.slackSend(response.channelId as String, blocks, response.ts as String)
         }

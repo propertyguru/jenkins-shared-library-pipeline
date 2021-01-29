@@ -1,18 +1,24 @@
 package org.stages
 
+import org.common.BuildArgs
 import org.common.Log
 import org.common.StepExecutor
 import org.common.slack.Message
 import org.common.slack.Slack
+import org.common.slack.StageBlock
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 abstract class Base implements Serializable {
     abstract String stage
     abstract String description
-    Message stepMessage
+    StageBlock stageBlock
 
     Base() {}
 
     void execute() {
+        this.stageBlock = new StageBlock()
+        this.stageBlock.addHeading(this.description, "running")
+        Message.addStageBlock(this.stageBlock)
         // TODO: need a way to skip the stage without getting the node.
         // this will improve the pipeline execution time too.
         // there are ways to do this, but I am looking for an alternate which doesn't make the code look ugly.
@@ -21,39 +27,38 @@ abstract class Base implements Serializable {
             // we need to put the stage directive here because otherwise the skipped stage is not visible on the UI.
             StepExecutor.stage(this.stage, {
                 Log.info("Skipping ${this.stage}")
-//                Utils.markStageSkippedForConditional(this.stage)
-                Slack.send(new Message("stage", this.description, "skipped"))
+                if (!StepExecutor.isUnitTest()) {
+                    // TODO: this step needs to be fixed through build.gradle file maybe.
+                    // its here because tests are not able to find this function
+                    Utils.markStageSkippedForConditional(this.stage)
+                }
+                this.stageBlock.addHeading(this.description, "skipped")
+                Slack.updateMessage()
             })
         } else {
-            def slackMessage = new Message("stage", this.description, "running")
-            Slack.send(slackMessage)
             try {
                 StepExecutor.stage(this.stage, {
                     this.body()
-                    slackMessage.update("success")
+                    this.stageBlock.addHeading(this.description, "success")
+                    Slack.updateMessage()
                 })
             } catch (Exception e) {
-                slackMessage.update("failed")
-                Slack.send()
-                Slack.send(new Message("divider"))
+                this.stageBlock.addHeading(this.description, "failed")
+                Slack.updateMessage()
                 Log.error(e.toString())
             }
         }
 
     }
 
-    void step(name, closure) {
+    void step(String name, def closure) {
         try {
-            if (this.stepMessage == null) {
-                this.stepMessage = new Message("step", name)
-                Slack.send(this.stepMessage)
-            } else {
-                this.stepMessage.addStep(name)
-                Slack.send()
-            }
+            this.stageBlock.addSteps(name)
+            Slack.updateMessage()
             closure()
         } catch (Exception e) {
-            Slack.send(new Message("error", "ERROR: ${e.toString()}}"))
+            Message.addError("ERROR: ${e.toString()}}")
+            Slack.updateMessage()
             Log.info("Step exception: ${name}")
             Log.error(e.toString())
             Log.info(e.printStackTrace())

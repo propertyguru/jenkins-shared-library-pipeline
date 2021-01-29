@@ -1,103 +1,38 @@
 package org.common.slack
 
-import org.common.Log
+@Singleton
+class Message implements Serializable {
 
-class Message {
-    private String type
-    private String text
-    private ArrayList<String> fields
-    private String status
-    private Map<String, String> emoji = [
-            "running": ":waiting:",
-            "success": ":white_check_mark:",
-            "failed": ":x:"
-    ]
+    private static Map heading
+    private static Map details
+    private static ArrayList<StageBlock> stageBlocks = []
+    private static Map error
 
-    Message(String type, String text="", String status="running", ArrayList<String> fields=[]) {
-        this.type = type
-        this.text = text
-        this.status = status
-        this.fields = fields
+    static void addHeading(String text) {
+        heading = Block.header(text)
     }
 
-    // @todo princetyagi: maybe change the format function
-    def format() {
-        // @todo princetyagi: change this to case
-        if (this.type == "heading") {
-            return headerText(this.text)
-        } else if (this.type == "subheading") {
-            return markdownText(this.text)
-        } else if (this.type == "sectionWithFields") {
-            return sectionWithFields(this.fields)
-        } else if (this.type == "divider") {
-            return divider()
-        } else if (this.type == "stage") {
-            if (this.status == "skipped") {
-                return markdownText("~*" + this.text + "*~")
-            } else {
-                return markdownText(emoji[this.status] + " *" + this.text + "*")
-            }
-        } else if (this.type == "step") {
-            return markdownText("• " + this.text)
-        } else if (this.type == "error") {
-            return markdownText("```" + this.text + "```")
-        } else {
-            Log.info("Invalid type provided")
-            // @todo princetyagi: throw error here or handle this case properly
-//            throw Exception("Invalid type provided to slack message format function")
+    static void addDetails(ArrayList<String> fields) {
+        details = Block.sectionWithFields(fields)
+    }
+
+    static void addError(String text) {
+        error = Block.markdownText("```" + text + "```")
+    }
+
+    static void addStageBlock(StageBlock sb) {
+        stageBlocks.add(sb)
+    }
+
+    static ArrayList toBlocks() {
+        ArrayList blocks = []
+        blocks.add(heading)
+        blocks.add(details)
+        blocks.add(Block.divider())
+        stageBlocks.each { StageBlock sb ->
+            blocks += sb.toBlock()
+            blocks.add(Block.divider())
         }
+        return blocks
     }
-
-    def update(status) {
-        this.status = status
-    }
-
-    def addStep(text) {
-        if (this.text != "") {
-            this.text += "\n"
-        }
-        this.text += "• ${text}"
-    }
-
-    private static def markdownText(text) {
-        return [
-                "type": "section",
-                "text": [
-                        "type": "mrkdwn",
-                        "text": text
-                ]
-        ]
-    }
-
-    private static def headerText(text) {
-        return [
-                "type": "header",
-                "text": [
-                        "type": "plain_text",
-                        "text": text,
-                        "emoji": true
-                ]
-        ]
-    }
-
-    private static def sectionWithFields(ArrayList<String> fields) {
-        ArrayList f = []
-        fields.each { field ->
-            f.add([
-                "type": "mrkdwn",
-                "text": field
-            ])
-        }
-        return [
-                "type": "section",
-                "fields": f
-        ]
-    }
-
-    private static def divider() {
-        return [
-                "type": "divider"
-        ]
-    }
-
 }

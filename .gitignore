@@ -10,6 +10,5 @@ build
 
 # ignore for now
 slackbot
-slack/
 
 Jenkinsfile

@@ -43,6 +43,7 @@ class PGPipelineTest extends BasePipelineTest {
         helper.registerAllowedMethod("readYaml", [Map.class], {
             return [:]
         })
+        helper.registerAllowedMethod("Utils.markStageSkippedForConditional", [String])
         Map blueprintData = [
                 "local": [
                         "slack"       : [
