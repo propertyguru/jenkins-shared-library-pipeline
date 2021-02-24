@@ -7,8 +7,8 @@ class Salt {
         saltCall("saltutil.sync_all > /dev/null")
     }
 
-    def blueprint(){
-        def text = this.saltCallWithOutput("github.subcomponent 'pg_${Blueprint.component()}_${Blueprint.subcomponent()}' --output json")
+    Map blueprint(){
+        String text = this.saltCallWithOutput("github.subcomponent 'pg_${Blueprint.component()}_${Blueprint.subcomponent()}' --output json")
         return Utils.toJson(text)
     }
 

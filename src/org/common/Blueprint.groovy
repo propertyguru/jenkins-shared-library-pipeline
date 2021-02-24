@@ -4,12 +4,16 @@ package org.common
 class Blueprint {
     private static def data
 
-    static def component() {
+    static String component() {
         return BuildArgs.component()
     }
 
-    static def subcomponent() {
+    static String subcomponent() {
         return BuildArgs.subcomponent()
+    }
+
+    static String name() {
+        return component() + "-" + subcomponent()
     }
 
     static String repository() {
@@ -18,7 +22,7 @@ class Blueprint {
     }
 
     static String deployPath() {
-        return data.get('deploy', {}).get('path', '.')
+        return data.get('deploy', {}).get('path', "")
     }
 
     static String pgbuild() {

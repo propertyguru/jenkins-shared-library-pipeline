@@ -7,7 +7,7 @@ class NoAgent implements IAgent {
         this.environment = environment
     }
 
-    def withSlave(body) {
+    void withSlave(body) {
         body()
     }
 

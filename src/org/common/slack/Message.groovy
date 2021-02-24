@@ -6,7 +6,7 @@ class Message implements Serializable {
     private static Map heading
     private static Map details
     private static ArrayList<StageBlock> stageBlocks = []
-    private static Map error
+    private static Map error = null
 
     static void addHeading(String text) {
         heading = Block.header(text)
@@ -32,6 +32,9 @@ class Message implements Serializable {
         stageBlocks.each { StageBlock sb ->
             blocks += sb.toBlock()
             blocks.add(Block.divider())
+        }
+        if (error != null) {
+            blocks.add(error)
         }
         return blocks
     }

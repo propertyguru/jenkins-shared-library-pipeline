@@ -1,7 +1,7 @@
 package org.stages
 
 import org.common.Blueprint
-import org.common.Docker
+import org.common.DockerClient
 import org.common.StepExecutor
 
 class AnchoreScan extends Base {
@@ -14,7 +14,7 @@ class AnchoreScan extends Base {
 
     @Override
     def body() {
-        def docker = new Docker()
+        def docker = new DockerClient()
         docker.setup()
 
         this.step("scanning docker file", {

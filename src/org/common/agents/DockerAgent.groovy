@@ -18,7 +18,7 @@ class DockerAgent implements IAgent {
         this.label = "env:new_${this.environment}"
     }
 
-    def withSlave(body) {
+    void withSlave(body) {
         StepExecutor.node(this.label, {
             String hostname = StepExecutor.shWithOutput("hostname")
             this.args += " --hostname ${hostname}"

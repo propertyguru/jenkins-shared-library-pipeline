@@ -1,5 +1,5 @@
 package org.common.agents
 
 interface IAgent {
-    def withSlave(def body)
+    void withSlave(def body)
 }

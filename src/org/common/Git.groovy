@@ -4,10 +4,9 @@ import com.cloudbees.groovy.cps.NonCPS
 
 @Singleton
 class Git {
-
     private static String commitID
     private static Map<String, ArrayList> changelog = [:]
-    private static ArrayList defaultExtensions = [
+    private static ArrayList defaultCheckoutExtensions = [
             [$class: 'UserIdentity' , name:'Jenkins', email:'jenkins@propertyguru.com.sg'],
             [$class: 'LocalBranch', localBranch: "**"],
             [$class: 'CheckoutOption', timeout: 5],
@@ -16,36 +15,46 @@ class Git {
             [$class: 'PruneStaleBranch']
     ]
 
-    static void checkout(ArrayList extensions=[]) {
-        extensions.addAll(defaultExtensions)
+    static void checkout(String repository, ArrayList extensions=[]) {
+        extensions.addAll(defaultCheckoutExtensions)
         StepExecutor.retry(3, {
-            StepExecutor.checkout(Blueprint.repository(), extensions)
+            StepExecutor.checkout(repository, extensions)
         })
     }
 
-    static void createTag(String name, String commitID="") {
-        try {
-            String cmd = "git tag ${name}"
-            if (commitID != "") {
-                cmd += " ${commitID}"
+    static void createTag(String name, String commitID) {
+        StepExecutor.retry(3) {
+            try {
+                StepExecutor.sh("git tag ${name} ${commitID}")
+                StepExecutor.sh("git push origin refs/tags/${name}")
+            } catch (Exception e) {
+                Log.error("Failure setting & pushing tag: ${name} -> ${commitID}")
+                Log.error(e.toString())
+                removeTag(name)
             }
-            StepExecutor.sh(cmd)
-        } catch(Exception e) {
-            Log.info("Failure setting tag: ${name} -> ${commitID}")
-            Log.info(e)
         }
     }
 
-    static String getLastTag(String pattern) {
+    static void removeTag(String name) {
+        try {
+            StepExecutor.sh("git tag -d ${name}")
+            StepExecutor.sh("git push --delete origin ${name}")
+        } catch(Exception e) {
+            Log.error("Failure removing tag: ${name}")
+            Log.error(e.toString())
+        }
+    }
+
+    static String getLastDeployedTag(String environment) {
         String cmd
         try {
-            cmd = "git tag --merged HEAD --sort=committerdate | grep ${pattern} | tail -1"
+            cmd = "git tag --merged HEAD --sort=committerdate | grep ${environment}"
             return StepExecutor.shWithOutput(cmd)
         } catch(Exception e) {
             Log.info("Failure running: ${cmd}")
-            Log.info(e)
+            Log.info(e.toString())
         }
-        return ""
+        return null
     }
 
     static String getCommitID() {
@@ -55,14 +64,17 @@ class Git {
             } catch(Exception e) {
                 Log.info("Unable to get the commitID")
             }
-            commitID = ""
         }
         return commitID
     }
 
+    static String getSHA(Integer len=6) {
+        return getCommitID().substring(0, len)
+    }
+
     static ArrayList<String> getChangelog(String environment) {
         if (changelog.get(environment, null) == null) {
-            String from = getLastTag(environment)
+            String from = getLastDeployedTag(environment)
             if (from == "") {
                 from = "HEAD~10"
             }
@@ -78,6 +90,11 @@ class Git {
         return changelog[environment]
     }
 
+    static void updatePRStatus(String stage, String step, String status) {
+        if (stage != "Setup") {
+            StepExecutor.updatePRStatus("${Blueprint.name()}", Blueprint.repository(), StepExecutor.env("ghprbActualCommit"), step, status)
+        }
+    }
 //    static void updateCommitStatus(String message, String status) {
 //        def sha = _context.env.ghprbActualCommit
 //        _context.step([

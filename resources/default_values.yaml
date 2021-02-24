@@ -4,5 +4,10 @@ pipeline:
     - staging
     - production
   JOBS:
+    pr:
+      key: value
+    build:
+      key1: value1
+  SERVICES:
     guruland-guruland:
       workspace: /srv/guruland

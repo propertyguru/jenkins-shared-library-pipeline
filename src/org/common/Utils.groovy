@@ -5,8 +5,8 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonBuilder
 
 @NonCPS
-def static toJson(data){
-    return new JsonSlurper().parseText(data)
+static Map toJson(String data){
+    return new JsonSlurper().parseText(data) as Map
 }
 
 @NonCPS

@@ -1,32 +1,17 @@
 import org.Pipeline
-import org.common.Blueprint
-import org.common.BuildArgs
 import org.common.Context
-import org.common.Git
 import org.common.Log
-import org.common.PGbuild
 import org.common.StepExecutor
 import org.common.slack.Slack
-import org.jenkinsci.plugins.workflow.steps.Step
 
 def call(body) {
 
     def PipelineParams = [
             string(
-                    name: 'BRANCH',
+                    name: 'GIT_BRANCH',
                     defaultValue: "master",
                     description: 'Either put a branch name or tags/[tag-name]'
             ),
-            [
-                    $class: 'ExtendedChoiceParameterDefinition',
-                    name: 'ENVIRONMENT',
-                    value: 'integration,staging,production',
-                    type: 'PT_CHECKBOX',
-                    defaultValue: 'integration',
-                    description: 'Select environments to deploy',
-                    multiSelectDelimiter: ",",
-                    visibleItemCount: 3
-            ],
             booleanParam(
                     defaultValue: false,
                     name: 'HOTFIX',

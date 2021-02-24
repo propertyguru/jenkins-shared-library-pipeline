@@ -1,5 +1,6 @@
 package org.common.slack
 
+import org.common.Blueprint
 import org.common.BuildArgs
 import org.common.Log
 import org.common.StepExecutor
@@ -13,10 +14,15 @@ class Slack implements Serializable {
 
     static def setup() {
         // Setting up slack Message
-        Message.addHeading("ads-product")
+        String heading = Blueprint.name()
+        if (BuildArgs.isPRJob()) {
+            heading += " - Triggered by Github"
+        }
+        Message.addHeading(heading)
+
         Message.addDetails([
                 "*Started By:*\n${BuildArgs.buildUser()}",
-                "*Branch:*\n${StepExecutor.env('BRANCH')}",
+                "*Branch:*\n${StepExecutor.env('GIT_BRANCH')}",
                 "*Environment:*\n${StepExecutor.env('ENVIRONMENT')}",
                 "*Jenkins URL:*\n${BuildArgs.buildURL()}"
         ] as ArrayList<String>)

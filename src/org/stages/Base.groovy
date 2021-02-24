@@ -1,6 +1,8 @@
 package org.stages
 
+import org.common.Blueprint
 import org.common.BuildArgs
+import org.common.Git
 import org.common.Log
 import org.common.StepExecutor
 import org.common.slack.Message
@@ -10,14 +12,13 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 abstract class Base implements Serializable {
     abstract String stage
-    abstract String description
     StageBlock stageBlock
 
     Base() {}
 
     void execute() {
         this.stageBlock = new StageBlock()
-        this.stageBlock.addHeading(this.description, "running")
+        this.stageBlock.addHeading(this.stage, "running")
         Message.addStageBlock(this.stageBlock)
         // TODO: need a way to skip the stage without getting the node.
         // this will improve the pipeline execution time too.
@@ -32,18 +33,23 @@ abstract class Base implements Serializable {
                     // its here because tests are not able to find this function
                     Utils.markStageSkippedForConditional(this.stage)
                 }
-                this.stageBlock.addHeading(this.description, "skipped")
+                this.stageBlock.addHeading(this.stage, "skipped")
                 Slack.updateMessage()
             })
         } else {
             try {
                 StepExecutor.stage(this.stage, {
                     this.body()
-                    this.stageBlock.addHeading(this.description, "success")
+
+                    this.stageBlock.addHeading(this.stage, "success")
                     Slack.updateMessage()
                 })
             } catch (Exception e) {
-                this.stageBlock.addHeading(this.description, "failed")
+                if (BuildArgs.isPRJob()) {
+                    // TODO: add this function to git class
+                    StepExecutor.updatePRStatus(Blueprint.name(), Blueprint.repository(), StepExecutor.env("ghprbActualCommit"), "FAILURE")
+                }
+                this.stageBlock.addHeading(this.stage, "failed")
                 Slack.updateMessage()
                 Log.error(e.toString())
             }
@@ -53,15 +59,18 @@ abstract class Base implements Serializable {
 
     void step(String name, def closure) {
         try {
+            Git.updatePRStatus(this.stage, name, "PENDING")
             this.stageBlock.addSteps(name)
             Slack.updateMessage()
             closure()
+            Git.updatePRStatus(this.stage, name, "SUCCESS")
         } catch (Exception e) {
+            Git.updatePRStatus(this.stage, name, "FAILURE")
             Message.addError("ERROR: ${e.toString()}}")
             Slack.updateMessage()
             Log.info("Step exception: ${name}")
-            Log.error(e.toString())
             Log.info(e.printStackTrace())
+            Log.error(e.toString())
         }
     }
 

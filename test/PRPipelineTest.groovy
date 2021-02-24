@@ -3,7 +3,7 @@ import groovy.json.JsonBuilder
 import org.junit.Before
 import org.junit.Test
 
-class PGPipelineTest extends BasePipelineTest {
+class PRPipelineTest extends BasePipelineTest {
 
     @Override
     @Before
@@ -153,8 +153,8 @@ class PGPipelineTest extends BasePipelineTest {
         binding.setVariable("ENVIRONMENT", "integration")
 
         Map env = [:]
-        env['JOB_NAME'] = "devtools-ads/product/build-test"
-        env['BUILD_URL'] = "https://jenkins.guruestate.com/job/devtools-ads/job/product/job/build-test/290/"
+        env['JOB_NAME'] = "devtools-ads/product/pr"
+        env['BUILD_URL'] = "https://jenkins.guruestate.com/job/devtools-ads/job/product/job/pr/1/"
         env['LOGLEVEL'] = "true"
         env['SLACK_ID'] = "XYZ"
         env["BRANCH"] = "master"
@@ -164,7 +164,7 @@ class PGPipelineTest extends BasePipelineTest {
 
     @Test
     void should_execute_without_errors() throws Exception {
-        def script = loadScript("vars/PGPipeline.groovy")
+        def script = loadScript("vars/PRPipeline.groovy")
         script.call(null)
         printCallStack()
 //        assertJobStatusSuccess()

@@ -11,7 +11,7 @@ class NodeAgent implements IAgent {
         this.label = "android-slave-01"
     }
 
-    def withSlave(def body) {
+    void withSlave(def body) {
         StepExecutor.node(this.label, body)
     }
 

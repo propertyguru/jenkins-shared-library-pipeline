@@ -1,6 +1,7 @@
 package org.common
 
 import com.cloudbees.groovy.cps.NonCPS
+import org.stages.Build
 
 /*
 Can't use Log class in StepExecutor because Log class hasnt been setup yet.
@@ -79,10 +80,20 @@ class StepExecutor implements Serializable {
         return _context.readYaml(file: filename)
     }
 
+    static void input(String msg, String id, String ok, ArrayList parameters=[]) {
+        _context.input(message: msg, id: id, ok: ok, parameters: parameters)
+    }
+
+    static void timeout(Integer time, String unit, def body) {
+        _context.timeout(time: time, unit: unit) {
+            body()
+        }
+    }
+
     static void checkout(String repo, ArrayList extensions) {
         _context.checkout([
                 $class: 'GitSCM',
-                branches: [[name: "${_context.BRANCH}"]],
+                branches: [[name: "${_context.GIT_BRANCH}"]],
                 doGenerateSubmoduleConfigurations: false,
                 gitTool: "git",
                 extensions: extensions,
@@ -206,6 +217,10 @@ class StepExecutor implements Serializable {
         return _context.env.getProperty(name)
     }
 
+    static void setEnv(String key, String val) {
+        _context.env[key] = val
+    }
+
     static Boolean isUnitTest() {
         if (_context.env instanceof Map) {
             return true
@@ -216,5 +231,33 @@ class StepExecutor implements Serializable {
     static Map currentBuild() {
         return _context.currentBuild
     }
+
+    static String jobResult() {
+        def res = currentBuild().currentResult
+        // TODO: remove this log
+        Log.info(res.getClass() as String)
+        return res.toString()
+    }
+
+    static void updatePRStatus(String name, String repo, String sha, String message, String status) {
+        // we are checking this if condition here because otherwise we had to put it everywhere we call this function. but this builds dependency on buildargs.
+        // TODO: maybe we can move buildarg function to this class.
+        if (BuildArgs.isPRJob()) {
+            _context.step([
+                    $class            : 'GitHubCommitStatusSetter',
+                    commitShaSource   : [$class: "ManuallyEnteredShaSource", sha: sha],
+                    reposSource       : [$class: "ManuallyEnteredRepositorySource", url: repo],
+                    contextSource     : [$class: "ManuallyEnteredCommitContextSource", context: name],
+                    errorHandlers     : [[$class: "ChangingBuildStatusErrorHandler", result: "UNSTABLE"]],
+                    statusResultSource: [
+                            $class : 'ConditionalStatusResultSource',
+                            results: [
+                                    [$class: "AnyBuildResult", message: message, state: status]
+                            ]
+                    ]
+            ]);
+        }
+    }
+
 
 }
