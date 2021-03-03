@@ -10,28 +10,26 @@ class StaticContent extends Base {
     StaticContent() {
         super()
         this.stage = "Static content"
-        this.description = "upload static content"
     }
 
     @Override
     def body() {
-        // check if static content needs to be uploaded.
-        // TODO: this can be moved to deploy stage so that we upload content and deploy in parallel
+
         this.step("uploading static content", {
             Map static_content_branches = [:]
-            Map image = DockerClient.imageDetails()
             for (String e in StepExecutor.env('ENVIRONMENT').tokenize(',')) {
                 String env = e
                 static_content_branches[env] = {
+                    String tag = env
+                    String name = Blueprint.component() + "/" + Blueprint.subcomponent() + "/static_content:" + tag
                     DockerClient.build(
-                            "${image['name']}",
-                            "${image['tag']}",
-                            "${Blueprint.dockerfile()}",
+                            name,
+                            Blueprint.dockerfile(),
                             "${Blueprint.dockerArgs()} --build-arg BUILD_ENV=${env}",
                             "static-content",
                             "${env}_static"
                     )
-                    Log.debug("Uploading Static content to S3 to ${env}")
+                    Log.info("Uploading Static content to S3 to ${env}")
                     (new Salt()).saltCallWithOutput("shipit.static_content ${Blueprint.component()} " +
                             "${Blueprint.subcomponent()} ${env} ${env}_static/app/")
                     // cleanup
@@ -46,6 +44,7 @@ class StaticContent extends Base {
     @Override
     Boolean skip() {
         // if static content configuration is not defined in blueprints, skip this stage.
+        // TODO: change this to checking from Dockerfile
         if (Blueprint.staticContent().isEmpty()) {
             return true
         }

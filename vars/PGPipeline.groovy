@@ -1,8 +1,18 @@
-import org.Pipeline
+import org.common.AgentFactory
+import org.common.Blueprint
 import org.common.Context
 import org.common.Log
 import org.common.StepExecutor
 import org.common.slack.Slack
+import org.stages.Build
+import org.stages.Checkout
+import org.stages.Deploy
+import org.stages.Docker
+import org.stages.Kong
+import org.stages.PostDeploy
+import org.stages.Sentry
+import org.stages.Sonarqube
+import org.stages.StaticContent
 
 def call(body) {
 
@@ -45,18 +55,52 @@ def call(body) {
     Context.set(this)
     StepExecutor.setup()
     Log.setup()
-    Slack.setup()
 
     StepExecutor.currentBuild().changeSets.clear()
 
-    (new Pipeline()).execute()
+    new AgentFactory("integration").getAgent().withSlave({
+        Blueprint.load()
+        Slack.setup()
+//        new Setup().execute()
+        new Checkout().execute()
+        new Build().execute()
+        StepExecutor.parallel([
+                "sonarqube"     : {
+                    new Sonarqube().execute()
+                },
+                "dockerimage"   : {
+                    new Docker().execute()
+                },
+                "static-content": {
+                    new StaticContent().execute()
+                }
+        ])
+    })
 
-//    def text = libraryResource('resources/default_values.yaml')
-//    Log.error(text)
-//    def a = new YamlSlurper().parseText(text)
-//    println(a)
-//    def jobs = a['pipeline']['JOBS']
-//    println(jobs)
-//    println('guruland-guruland' in jobs)
+    ["integration", "staging", "production"].each { String env ->
+        new AgentFactory(env).getAgent().withSlave({
+//            StepExecutor.timeout(7, "DAYS") {
+//                StepExecutor.input("Deploy to ${env}?", "deploy-${env}", "Yes")
+//            }
+            StepExecutor.parallel([
+                "deploy": {
+                    new Deploy(env).execute()
+                },
+                "kong"  : {
+                    new Kong(env).execute()
+                },
+                "sentry": {
+                    new Sentry(env).execute()
+                }
+            ])
+            new PostDeploy(env).execute()
+        })
+    }
+
+    // few final touchups!
+    // we are doing this because we only clone repositories on the integration slave.
+//    new AgentFactory("integration").getAgent().withSlave({
+        // setting up tags on git
+//    })
 
 }

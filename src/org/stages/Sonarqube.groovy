@@ -18,8 +18,7 @@ class Sonarqube extends Base {
         String tag
 
         this.step("Building dockerfile sonarqube target", {
-            tag = Git.getSHA()
-            name = Blueprint.component() + "/" + Blueprint.subcomponent() + ":" + tag
+            name = Blueprint.component() + "/" + Blueprint.subcomponent() + ":sonarqube"
             DockerClient.build(
                     name,
                     Blueprint.dockerfile(),

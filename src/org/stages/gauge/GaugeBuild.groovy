@@ -11,7 +11,6 @@ class GaugeBuild extends Base{
     GaugeBuild() {
         super()
         this.stage = "Gauge Build"
-        this.description = "Gauge Build"
     }
 
     @Override

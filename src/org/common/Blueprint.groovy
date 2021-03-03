@@ -16,6 +16,21 @@ class Blueprint {
         return component() + "-" + subcomponent()
     }
 
+    static ArrayList<String> teamEmails() {
+        return data.get('team_emails', [])
+    }
+
+    static ArrayList<String> channels(String environment) {
+        String jobType = BuildArgs.jobType()
+        if (jobType == "qa") {
+            return ["alerts-qa-signoff"]
+        }
+        // if job type isnt qa, we send to different default channels, plus what they put in blueprints.
+        ArrayList<String> channels = data.get('slack', [:]).get('channels', [:]).get(environment, [])
+        // remove if duplicates
+        return channels.unique()
+    }
+
     static String repository() {
         def repo = data.get('deploy', {}).get('repository', '')
         return "git@${repo}.git"

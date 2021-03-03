@@ -35,7 +35,6 @@ class Docker extends Base {
             name = Blueprint.component() + "/" + Blueprint.subcomponent() + ":" + tag
 
             // TODO: I don't remember why we are logging in to docker-hub
-            DockerClient.loginToDockerHub()
             // before building, check if the image is present in registry!
             DockerClient.build(
                     name,

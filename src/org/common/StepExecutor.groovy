@@ -34,6 +34,7 @@ class StepExecutor implements Serializable {
 
     static void error(String msg) {
         _context.error(msg)
+        throw msg
     }
 
     static void ansiColor(String shell, def body) {
@@ -93,7 +94,7 @@ class StepExecutor implements Serializable {
     static void checkout(String repo, ArrayList extensions) {
         _context.checkout([
                 $class: 'GitSCM',
-                branches: [[name: "${_context.GIT_BRANCH}"]],
+                branches: [[name: env('GIT_BRANCH')]],
                 doGenerateSubmoduleConfigurations: false,
                 gitTool: "git",
                 extensions: extensions,
@@ -222,6 +223,7 @@ class StepExecutor implements Serializable {
     }
 
     static Boolean isUnitTest() {
+        // TODO: we have to fix this somehow. its being used at few places now!
         if (_context.env instanceof Map) {
             return true
         }

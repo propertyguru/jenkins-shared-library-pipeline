@@ -12,7 +12,6 @@ class Kong extends Base {
         super()
         this.environment = environment
         this.stage = "Kong - ${this.environment}"
-        this.description = "Kong - ${this.environment}"
     }
 
     @Override

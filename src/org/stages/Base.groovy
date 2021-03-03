@@ -1,7 +1,5 @@
 package org.stages
 
-import org.common.Blueprint
-import org.common.BuildArgs
 import org.common.Git
 import org.common.Log
 import org.common.StepExecutor
@@ -16,7 +14,10 @@ abstract class Base implements Serializable {
 
     Base() {}
 
-    void execute() {
+    // variable test: this is just for debugging purposes. quite useful sometimes when you want to debug the pipeline
+    // without actually doing the checkout or deployment. Though it does sends message on slack!
+
+    void execute(Boolean test = false) {
         this.stageBlock = new StageBlock()
         this.stageBlock.addHeading(this.stage, "running")
         Message.addStageBlock(this.stageBlock)
@@ -39,19 +40,17 @@ abstract class Base implements Serializable {
         } else {
             try {
                 StepExecutor.stage(this.stage, {
-                    this.body()
-
+                    // we only skip this line while running
+                    if (!test) {
+                        this.body()
+                    }
                     this.stageBlock.addHeading(this.stage, "success")
                     Slack.updateMessage()
                 })
             } catch (Exception e) {
-                if (BuildArgs.isPRJob()) {
-                    // TODO: add this function to git class
-                    StepExecutor.updatePRStatus(Blueprint.name(), Blueprint.repository(), StepExecutor.env("ghprbActualCommit"), "FAILURE")
-                }
                 this.stageBlock.addHeading(this.stage, "failed")
                 Slack.updateMessage()
-                Log.error(e.toString())
+                Log.error("STAGE FUNCTION REPORTING: " + e.toString())
             }
         }
 
@@ -70,7 +69,7 @@ abstract class Base implements Serializable {
             Slack.updateMessage()
             Log.info("Step exception: ${name}")
             Log.info(e.printStackTrace())
-            Log.error(e.toString())
+            Log.error("STEP FUNCTION REPORTING: " + e.toString())
         }
     }
 

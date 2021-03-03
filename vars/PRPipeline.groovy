@@ -21,14 +21,17 @@ def call(body) {
     Context.set(this)
     StepExecutor.setup()
     Log.setup()
-    Slack.setup()
 
-    // we are using this variable for BRANCH because github PR also sends the same name
-    GIT_BRANCH = StepExecutor.env("ghprbSourceBranch")
+    // few of our stages have a dependency on GIT_BRANCH and ENVIRONMENT variables.
     ENVIRONMENT = StepExecutor.setEnv("ENVIRONMENT", "")
+    // github PR hook sets this!
+    GIT_BRANCH = StepExecutor.env("ghprbSourceBranch")
 
     new AgentFactory("integration").getAgent().withSlave({
-        new Setup().execute()
+        Blueprint.load()
+        Slack.setup()
+        Log.info("loaded blueprints")
+//        new Setup().execute()
         new Checkout().execute()
         new Build().execute()
         StepExecutor.parallel([

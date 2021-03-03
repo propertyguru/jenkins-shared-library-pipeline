@@ -9,7 +9,6 @@ class AnchoreScan extends Base {
     AnchoreScan() {
         super()
         this.stage = "Image Scanning"
-        this.description = "Scanning docker image and file"
     }
 
     @Override

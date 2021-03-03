@@ -2,9 +2,7 @@ package org.common.slack
 
 import org.common.Blueprint
 import org.common.BuildArgs
-import org.common.Log
 import org.common.StepExecutor
-import org.common.Utils
 
 @Singleton
 class Slack implements Serializable {
@@ -14,6 +12,41 @@ class Slack implements Serializable {
 
     static def setup() {
         // Setting up slack Message
+        buildMessage()
+        // get users from blueprints and get slack id of each user
+        // TODO: this needs to be the build user, not my email.
+        users = getUsers()
+        // get channels from blueprints
+        channels = getChannels()
+        // send the message to channels
+        sendMessage()
+    }
+
+    static ArrayList<String> getChannels() {
+        String environment = "integration"
+        if (StepExecutor.env('ENVIRONMENT').tokenize(',').size() > 0) {
+            environment = StepExecutor.env('ENVIRONMENT').tokenize(',')[-1]
+        }
+        ArrayList<String> channels = Blueprint.channels(environment)
+        if (environment == "production") {
+            channels.push("deployment")
+        } else {
+            channels.push("alerts-qa")
+        }
+        return channels.unique()
+    }
+
+    static ArrayList<String> getUsers() {
+        ArrayList<String> userEmails = Blueprint.teamEmails()
+        ArrayList<String> userIds
+        userEmails.each { String id ->
+            String uid = StepExecutor.slackUserIdFromEmail(id)
+            userIds.add(uid)
+        }
+        return userIds.unique()
+    }
+
+    static void buildMessage() {
         String heading = Blueprint.name()
         if (BuildArgs.isPRJob()) {
             heading += " - Triggered by Github"
@@ -26,19 +59,6 @@ class Slack implements Serializable {
                 "*Environment:*\n${StepExecutor.env('ENVIRONMENT')}",
                 "*Jenkins URL:*\n${BuildArgs.buildURL()}"
         ] as ArrayList<String>)
-        // get users from blueprints and get slack id of each user
-        // TODO: this needs to be the build user, not my email.
-        users = ["prince@propertyguru.com.sg"]
-        ArrayList<String> userEmails = []
-        users = users.each { user ->
-            String userEmail = StepExecutor.slackUserIdFromEmail(user)
-            userEmails.add(userEmail)
-        }
-        users = userEmails
-        // get channels from blueprints
-        channels = ["#prince-test", "#test-please-delete"]
-        // send the message to channels
-        sendMessage()
     }
 
     // sendMessage works with channels and users.

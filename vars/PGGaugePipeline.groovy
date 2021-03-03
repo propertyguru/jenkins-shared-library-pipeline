@@ -1,5 +1,4 @@
 import org.GaugePipeline
-import org.Pipeline
 import org.common.BuildArgs
 import org.common.Context
 import org.common.Log
