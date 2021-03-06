@@ -1,4 +1,4 @@
-package org.common.slack
+package org.slack
 
 class StageBlock implements Serializable {
     private Map heading

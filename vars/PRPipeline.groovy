@@ -4,10 +4,11 @@ import org.common.BuildArgs
 import org.common.Context
 import org.common.Log
 import org.common.StepExecutor
-import org.common.slack.Slack
+import org.slack.Slack
 import org.stages.Build
 import org.stages.Checkout
 import org.stages.Docker
+import org.stages.Input
 import org.stages.Setup
 import org.stages.Sonarqube
 
@@ -30,17 +31,20 @@ def call(body) {
     new AgentFactory("integration").getAgent().withSlave({
         Blueprint.load()
         Slack.setup()
-        Log.info("loaded blueprints")
-//        new Setup().execute()
-        new Checkout().execute()
-        new Build().execute()
+        Boolean test = true
+        new Checkout().execute(test)
+        new Build().execute(test)
         StepExecutor.parallel([
                 "sonarqube"     : {
-                    new Sonarqube().execute()
+                    new Sonarqube().execute(test)
                 },
                 "dockerimage"   : {
-                    new Docker().execute()
+                    new Docker().execute(test)
                 }
         ])
+        new Input("PR tests passed! Do you want to merge the PR?",
+                "pr_success",
+                ["yes", "no"] as ArrayList<String>).execute()
+        Log.info("MERGE THE PR SOMEHOW!!!")
     })
 }

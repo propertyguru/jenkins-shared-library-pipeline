@@ -1,4 +1,4 @@
-package org.common.slack
+package org.slack
 
 @Singleton
 class Message implements Serializable {
@@ -6,6 +6,7 @@ class Message implements Serializable {
     private static Map heading
     private static Map details
     private static ArrayList<StageBlock> stageBlocks = []
+    static StageBlock inputBlock = null
     private static Map error = null
 
     static void addHeading(String text) {

@@ -4,10 +4,9 @@ import org.common.Blueprint
 import org.common.BuildArgs
 import org.common.Git
 import org.common.Log
-
 import org.common.PGbuild
 import org.common.StepExecutor
-import org.common.slack.Slack
+import org.slack.Slack
 
 class Build extends Base {
 

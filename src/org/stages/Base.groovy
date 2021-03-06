@@ -3,24 +3,29 @@ package org.stages
 import org.common.Git
 import org.common.Log
 import org.common.StepExecutor
-import org.common.slack.Message
-import org.common.slack.Slack
-import org.common.slack.StageBlock
+import org.slack.MessageTemplate
+import org.slack.Slack
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
 abstract class Base implements Serializable {
     abstract String stage
-    StageBlock stageBlock
+    protected ArrayList slackMessage
+    protected Boolean test = true
+    private Map<String, String> emoji
 
-    Base() {}
+    Base() {
+        this.slackMessage = []
+        MessageTemplate.addStageBlock(this.slackMessage)
+        this.emoji = [
+                "running": ":waiting:",
+                "success": ":white_check_mark:",
+                "failed": ":x:"
+        ]
+    }
 
     // variable test: this is just for debugging purposes. quite useful sometimes when you want to debug the pipeline
     // without actually doing the checkout or deployment. Though it does sends message on slack!
-
-    void execute(Boolean test = false) {
-        this.stageBlock = new StageBlock()
-        this.stageBlock.addHeading(this.stage, "running")
-        Message.addStageBlock(this.stageBlock)
+    void execute() {
         // TODO: need a way to skip the stage without getting the node.
         // this will improve the pipeline execution time too.
         // there are ways to do this, but I am looking for an alternate which doesn't make the code look ugly.
@@ -34,22 +39,24 @@ abstract class Base implements Serializable {
                     // its here because tests are not able to find this function
                     Utils.markStageSkippedForConditional(this.stage)
                 }
-                this.stageBlock.addHeading(this.stage, "skipped")
-                Slack.updateMessage()
+                this.slackMessage.add(MessageTemplate.markdownText("~* ${this.stage} *~"))
+                Slack.sendMessage()
             })
         } else {
+            Map<String, Serializable> stageMessage  = [:]
+            this.slackMessage.add(stageMessage)
             try {
                 StepExecutor.stage(this.stage, {
+                    stageMessage = MessageTemplate.markdownText(this.emoji["running"] + " *" + this.stage + "*")
+                    Slack.sendMessage()
                     // we only skip this line while running
-                    if (!test) {
-                        this.body()
-                    }
-                    this.stageBlock.addHeading(this.stage, "success")
-                    Slack.updateMessage()
+                    this.body()
+                    stageMessage = MessageTemplate.markdownText(this.emoji["success"] + " *" + this.stage + "*")
+                    Slack.sendMessage()
                 })
             } catch (Exception e) {
-                this.stageBlock.addHeading(this.stage, "failed")
-                Slack.updateMessage()
+                stageMessage = MessageTemplate.markdownText(this.emoji["failed"] + " *" + this.stage + "*")
+                Slack.sendMessage()
                 Log.error("STAGE FUNCTION REPORTING: " + e.toString())
             }
         }
@@ -57,16 +64,27 @@ abstract class Base implements Serializable {
     }
 
     void step(String name, def closure) {
+        Map<String, Serializable> stepMessage = [:]
+        String stepText = stepMessage.get("text", [:]).get("text", "")
+        if (stepText != "") {
+            stepText += "\n${name}"
+            stepMessage = MessageTemplate.markdownText(stepText)
+        } else {
+            stepText = name
+            stepMessage = MessageTemplate.markdownText(stepText)
+        }
+        this.slackMessage.add(stepMessage)
+        Slack.sendMessage()
         try {
             Git.updatePRStatus(this.stage, name, "PENDING")
-            this.stageBlock.addSteps(name)
-            Slack.updateMessage()
-            closure()
+            if (!test) {
+                closure()
+            }
             Git.updatePRStatus(this.stage, name, "SUCCESS")
         } catch (Exception e) {
             Git.updatePRStatus(this.stage, name, "FAILURE")
-            Message.addError("ERROR: ${e.toString()}}")
-            Slack.updateMessage()
+            MessageTemplate.errorBlock = MessageTemplate.markdownText("ERROR: ${e.toString()}}")
+            Slack.sendMessage()
             Log.info("Step exception: ${name}")
             Log.info(e.printStackTrace())
             Log.error("STEP FUNCTION REPORTING: " + e.toString())

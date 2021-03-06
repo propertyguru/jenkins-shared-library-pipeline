@@ -1,4 +1,4 @@
-package org.common.slack
+package org.slack
 
 @Singleton
 class Block implements Serializable {
