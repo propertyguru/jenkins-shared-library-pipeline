@@ -11,11 +11,6 @@ abstract class Base implements Serializable {
     abstract String stage
     protected ArrayList slackMessage
     protected Boolean test = true
-    private Map<String, String> emoji = [
-            "running": ":waiting:",
-            "success": ":white_check_mark:",
-            "failed": ":x:"
-    ]
     protected Boolean skipSlack
 
     Base(Boolean skipSlack = false) {
@@ -56,19 +51,19 @@ abstract class Base implements Serializable {
             try {
                 StepExecutor.stage(this.stage, {
                     if (!skipSlack) {
-                        stageMessage = MessageTemplate.markdownText(this.emoji["running"] + " *" + this.stage + "*")
+                        stageMessage = MessageTemplate.markdownText(":waiting: *" + this.stage + "*")
                         Slack.sendMessage()
                     }
                     // we only skip this line while running
                     this.body()
                     if (!skipSlack) {
-                        stageMessage = MessageTemplate.markdownText(this.emoji["success"] + " *" + this.stage + "*")
+                        stageMessage = MessageTemplate.markdownText(":white_check_mark: *" + this.stage + "*")
                         Slack.sendMessage()
                     }
                 })
             } catch (Exception e) {
                 if (!skipSlack) {
-                    stageMessage = MessageTemplate.markdownText(this.emoji["failed"] + " *" + this.stage + "*")
+                    stageMessage = MessageTemplate.markdownText(":x: *" + this.stage + "*")
                     Slack.sendMessage()
                 }
                 Log.error("STAGE FUNCTION REPORTING: " + e.toString())

@@ -7,7 +7,7 @@ class MessageTemplate implements Serializable {
     static String branch
     static String jenkinsJobURL
     private static ArrayList<ArrayList> stageBlocks = []
-    static StageBlock inputBlock = null
+    static Map inputBlock = null
     static Map errorBlock = null
 
     static ArrayList builder() {
