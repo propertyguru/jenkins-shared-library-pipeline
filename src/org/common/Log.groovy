@@ -13,7 +13,7 @@ class Log implements Serializable {
             "error": "\033[31m"
     ]
 
-    static def setup() {
+    static void setup() {
         if (StepExecutor.env('LOGLEVEL') == "true") {
             logLevel = "debug"
         }
@@ -23,15 +23,15 @@ class Log implements Serializable {
         return logLevel
     }
 
-    static def debug(String message){
+    static void debug(String message){
         logMessage("debug", message)
     }
 
-    static def info(String message) {
+    static void info(String message) {
         logMessage("info", message)
     }
 
-    static def error(String message){
+    static void error(String message){
         logMessage("error", message)
         StepExecutor.error(message)
     }

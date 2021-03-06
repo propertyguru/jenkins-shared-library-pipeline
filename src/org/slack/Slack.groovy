@@ -2,6 +2,7 @@ package org.slack
 
 import org.common.Blueprint
 import org.common.BuildArgs
+import org.common.Log
 import org.common.StepExecutor
 
 @Singleton
@@ -60,6 +61,7 @@ class Slack implements Serializable {
     // for users, simply use @username.
     static void sendMessage() {
         ArrayList blocks = MessageTemplate.builder()
+        Log.info(blocks as String)
         // if slackResponses is null, means we are sending msg for the first time.
         if (slackResponses == null) {
             slackResponses = []
