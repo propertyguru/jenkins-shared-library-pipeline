@@ -11,7 +11,7 @@ class Input extends Base {
     private ArrayList<String> buttons
 
     Input(String msg, String block_id, ArrayList<String> buttons) {
-        super()
+        super(true)
         this.stage = "Input"
         this.msg = msg
         this.block_id = block_id

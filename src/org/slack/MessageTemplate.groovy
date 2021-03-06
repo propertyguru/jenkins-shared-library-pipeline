@@ -45,10 +45,10 @@ class MessageTemplate implements Serializable {
                     "text": "*Started By:*\n${startedBy}"
                 ], [
                     "type": "mrkdwn",
-                    "text": "*Jenkins URL:*\n${jenkinsJobURL}"
+                    "text": "*Branch:*\n${branch}"
                 ], [
                     "type": "mrkdwn",
-                    "text": "*Branch:*\n${branch}"
+                    "text": "*Jenkins URL:*\n${jenkinsJobURL}"
                 ]
             ]
         ]

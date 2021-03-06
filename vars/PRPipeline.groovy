@@ -31,20 +31,19 @@ def call(body) {
     new AgentFactory("integration").getAgent().withSlave({
         Blueprint.load()
         Slack.setup()
-        Boolean test = true
-        new Checkout().execute(test)
-        new Build().execute(test)
+        new Checkout().execute()
+        new Build().execute()
         StepExecutor.parallel([
                 "sonarqube"     : {
-                    new Sonarqube().execute(test)
+                    new Sonarqube().execute()
                 },
                 "dockerimage"   : {
-                    new Docker().execute(test)
+                    new Docker().execute()
                 }
         ])
-        new Input("PR tests passed! Do you want to merge the PR?",
-                "pr_success",
-                ["yes", "no"] as ArrayList<String>).execute()
-        Log.info("MERGE THE PR SOMEHOW!!!")
     })
+    new Input("PR tests passed! Do you want to merge the PR?",
+            "pr_success",
+            ["yes", "no"] as ArrayList<String>).execute()
+    Log.info("MERGE THE PR SOMEHOW!!!")
 }
