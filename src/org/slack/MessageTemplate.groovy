@@ -1,23 +1,31 @@
 package org.slack
 
+import hudson.triggers.SCMTrigger
+
 @Singleton
 class MessageTemplate implements Serializable {
     static String heading
+    static String subheading
     static String startedBy
     static String branch
-    static String jenkinsJobURL
-    private static ArrayList<ArrayList> stageBlocks = []
-    static Map inputBlock = null
+    static ArrayList<StageBlock> stageBlocks = []
+    static ArrayList<Map> inputBlock = null
     static Map errorBlock = null
 
     static ArrayList builder() {
         ArrayList block =  []
         block.add(headerBlock())
+        block.add(markdownText(subheading))
         block.add(sectionBlock())
         block.add(dividerBlock())
-        block += stageBlocks
+        stageBlocks.each { StageBlock sb ->
+            ArrayList<Map> msg = sb.buildMessage()
+            if (msg.size() > 0) {
+                block += msg
+            }
+        }
         if (inputBlock != null) {
-            block.add(inputBlock)
+            block += inputBlock
         }
         if (errorBlock != null) {
             block.add(errorBlock)
@@ -46,16 +54,9 @@ class MessageTemplate implements Serializable {
                 ], [
                     "type": "mrkdwn",
                     "text": "*Branch:*\n${branch}"
-                ], [
-                    "type": "mrkdwn",
-                    "text": "*Jenkins URL:*\n${jenkinsJobURL}"
                 ]
             ]
         ]
-    }
-
-    static void addStageBlock(ArrayList stageBlock) {
-        stageBlocks.add(stageBlock)
     }
 
     private static Map dividerBlock() {
@@ -85,7 +86,7 @@ class MessageTemplate implements Serializable {
                     "emoji": true
                 ],
                 "value": button,
-                "action_id": block_id + button
+                "action_id": block_id + "_" + button
             ])
         }
         return [

@@ -52,9 +52,9 @@ class Slack implements Serializable {
             heading += " : Github Pull Request"
         }
         MessageTemplate.heading = heading
+        MessageTemplate.subheading = BuildArgs.buildURL()
         MessageTemplate.startedBy = BuildArgs.buildUser()
         MessageTemplate.branch = StepExecutor.env('GIT_BRANCH')
-        MessageTemplate.jenkinsJobURL = BuildArgs.buildURL()
     }
 
     // sendMessage works with channels and users.

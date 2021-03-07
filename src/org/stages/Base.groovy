@@ -6,25 +6,28 @@ import org.common.StepExecutor
 import org.slack.MessageTemplate
 import org.slack.Slack
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+import org.slack.StageBlock
 
 abstract class Base implements Serializable {
     abstract String stage
-    protected ArrayList slackMessage
-    protected Boolean test = true
+    protected StageBlock stageBlock
+    protected Boolean test
     protected Boolean skipSlack
 
     Base(Boolean skipSlack = false) {
+        test = true
         this.skipSlack = skipSlack
+        this.stageBlock = new StageBlock()
     }
 
     // variable test: this is just for debugging purposes. quite useful sometimes when you want to debug the pipeline
     // without actually doing the checkout or deployment. Though it does sends message on slack!
     void execute() {
         if (!this.skipSlack) {
-            this.slackMessage = []
-            MessageTemplate.addStageBlock(this.slackMessage)
+            this.stageBlock.setStageName(this.stage)
+            this.stageBlock.setStatus("running")
+            MessageTemplate.stageBlocks.add(this.stageBlock)
         }
-
         // TODO: need a way to skip the stage without getting the node.
         // this will improve the pipeline execution time too.
         // there are ways to do this, but I am looking for an alternate which doesn't make the code look ugly.
@@ -38,32 +41,28 @@ abstract class Base implements Serializable {
                     // its here because tests are not able to find this function
                     Utils.markStageSkippedForConditional(this.stage)
                 }
-                if (!skipSlack) {
-                    this.slackMessage.add(MessageTemplate.markdownText("~* ${this.stage} *~"))
+                if (!this.skipSlack) {
+                    this.stageBlock.setStatus("skipped")
                     Slack.sendMessage()
                 }
             })
         } else {
-            Map<String, Serializable> stageMessage = [:]
-            if (!skipSlack) {
-                this.slackMessage.add(stageMessage)
-            }
             try {
                 StepExecutor.stage(this.stage, {
                     if (!skipSlack) {
-                        stageMessage = MessageTemplate.markdownText(":waiting: *" + this.stage + "*")
+                        this.stageBlock.setStatus("running")
                         Slack.sendMessage()
                     }
                     // we only skip this line while running
                     this.body()
                     if (!skipSlack) {
-                        stageMessage = MessageTemplate.markdownText(":white_check_mark: *" + this.stage + "*")
+                        this.stageBlock.setStatus("success")
                         Slack.sendMessage()
                     }
                 })
             } catch (Exception e) {
                 if (!skipSlack) {
-                    stageMessage = MessageTemplate.markdownText(":x: *" + this.stage + "*")
+                    this.stageBlock.setStatus("failed")
                     Slack.sendMessage()
                 }
                 Log.error("STAGE FUNCTION REPORTING: " + e.toString())
@@ -75,15 +74,7 @@ abstract class Base implements Serializable {
     void step(String name, def closure) {
         Map<String, Serializable> stepMessage = [:]
         if (!skipSlack) {
-            String stepText = stepMessage.get("text", [:]).get("text", "")
-            if (stepText != "") {
-                stepText += "\n${name}"
-                stepMessage = MessageTemplate.markdownText(stepText)
-            } else {
-                stepText = name
-                stepMessage = MessageTemplate.markdownText(stepText)
-            }
-            this.slackMessage.add(stepMessage)
+            this.stageBlock.addStep(name)
             Slack.sendMessage()
         }
         try {

@@ -43,7 +43,7 @@ def call(body) {
         ])
     })
     new Input("PR tests passed! Do you want to merge the PR?",
-            "pr_success",
+            "pr",
             ["yes", "no"] as ArrayList<String>).execute()
     Log.info("MERGE THE PR SOMEHOW!!!")
 }
