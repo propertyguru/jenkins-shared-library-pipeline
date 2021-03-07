@@ -1,6 +1,5 @@
 import org.common.AgentFactory
 import org.common.Blueprint
-import org.common.BuildArgs
 import org.common.Context
 import org.common.Log
 import org.common.StepExecutor
@@ -9,7 +8,6 @@ import org.stages.Build
 import org.stages.Checkout
 import org.stages.Docker
 import org.stages.Input
-import org.stages.Setup
 import org.stages.Sonarqube
 
 def call(body) {
@@ -42,8 +40,8 @@ def call(body) {
                 }
         ])
     })
-    new Input("PR tests passed! Do you want to merge the PR?",
-            "pr",
-            ["yes", "no"] as ArrayList<String>).execute()
-    Log.info("MERGE THE PR SOMEHOW!!!")
+//    new Input("PR tests passed! Do you want to merge the PR?",
+//            "pr",
+//            ["yes", "no"] as ArrayList<String>).execute()
+//    Log.info("MERGE THE PR SOMEHOW!!!")
 }

@@ -21,7 +21,6 @@ class Slack implements Serializable {
 
     static ArrayList<String> getChannels() {
         // TODO: this needs to be the build user, not my email.
-        return ["prince-test"]
         String environment = "integration"
         if (StepExecutor.env('ENVIRONMENT').tokenize(',').size() > 0) {
             environment = StepExecutor.env('ENVIRONMENT').tokenize(',')[-1]
@@ -36,7 +35,6 @@ class Slack implements Serializable {
     }
 
     static ArrayList<String> getUsers() {
-        return ["prince@propertyguru.com.sg"]
         ArrayList<String> userEmails = Blueprint.teamEmails()
         ArrayList<String> userIds
         userEmails.each { String id ->

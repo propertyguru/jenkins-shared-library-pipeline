@@ -3,10 +3,12 @@ import org.common.Blueprint
 import org.common.Context
 import org.common.Log
 import org.common.StepExecutor
+import org.slack.Slack
 import org.stages.Build
 import org.stages.Checkout
 import org.stages.Deploy
 import org.stages.Docker
+import org.stages.Input
 import org.stages.Kong
 import org.stages.PostDeploy
 import org.stages.Sentry
@@ -57,10 +59,11 @@ def call(body) {
 
     StepExecutor.currentBuild().changeSets.clear()
 
+    // TODO: set the job descriptor, deploying to env???
+
     new AgentFactory("integration").getAgent().withSlave({
         Blueprint.load()
         Slack.setup()
-//        new Setup().execute()
         new Checkout().execute()
         new Build().execute()
         StepExecutor.parallel([
@@ -77,10 +80,11 @@ def call(body) {
     })
 
     ["integration", "staging", "production"].each { String env ->
+        new Input("Do you want to deploy to ${env}? You have 7 days before I take it as no!! :)",
+                "deploy_${env}",
+                ["yes", "no"] as ArrayList<String>).execute()
+
         new AgentFactory(env).getAgent().withSlave({
-//            StepExecutor.timeout(7, "DAYS") {
-//                StepExecutor.input("Deploy to ${env}?", "deploy-${env}", "Yes")
-//            }
             StepExecutor.parallel([
                 "deploy": {
                     new Deploy(env).execute()
@@ -96,7 +100,8 @@ def call(body) {
         })
     }
 
-    // few final touchups!
+
+    // TODO: few final touchups!
     // we are doing this because we only clone repositories on the integration slave.
 //    new AgentFactory("integration").getAgent().withSlave({
         // setting up tags on git

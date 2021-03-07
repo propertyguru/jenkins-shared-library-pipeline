@@ -17,12 +17,10 @@ class Blueprint {
     }
 
     static ArrayList<String> teamEmails() {
-        return ["prince@propertyguru.com.sg"]
         return data.get('team_emails', [])
     }
 
     static ArrayList<String> channels(String environment) {
-        return ["prince-test"]
         String jobType = BuildArgs.jobType()
         if (jobType == "qa") {
             return ["alerts-qa-signoff"]

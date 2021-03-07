@@ -32,6 +32,7 @@ class PGTest extends BasePipelineTest {
                     description: 'Check this to enable debug logs'
             ]
         })
+        helper.registerAllowedMethod("input", [Map.class])
         helper.registerAllowedMethod("parameters", [ArrayList.class])
         helper.registerAllowedMethod("slackUserIdFromEmail", [Map.class], {
             return "UASDASDAN"
