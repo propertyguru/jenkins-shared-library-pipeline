@@ -22,7 +22,11 @@ class Input extends Base {
     def body() {
         MessageTemplate.inputBlock = MessageTemplate.buttonBlock(this.msg, this.buttons, this.block_id)
         Slack.sendMessage()
-        StepExecutor.input(this.msg, this.block_id, this.buttons[0])
+        StepExecutor.timeout(7, "DAYS", {
+            StepExecutor.input(this.msg, this.block_id, this.buttons[0])
+            MessageTemplate.inputBlock = null
+            Slack.sendMessage()
+        })
     }
 
     @Override

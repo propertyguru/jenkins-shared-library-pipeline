@@ -3,7 +3,6 @@ import org.common.Blueprint
 import org.common.Context
 import org.common.Log
 import org.common.StepExecutor
-import org.common.slack.Slack
 import org.stages.Build
 import org.stages.Checkout
 import org.stages.Deploy
