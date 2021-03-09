@@ -35,6 +35,7 @@ class Slack implements Serializable {
     }
 
     static ArrayList<String> getUsers() {
+        return ["prince@propertyguru.com.sg"]
         ArrayList<String> userEmails = Blueprint.teamEmails()
         ArrayList<String> userIds
         userEmails.each { String id ->

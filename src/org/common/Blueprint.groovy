@@ -37,7 +37,8 @@ class Blueprint {
     }
 
     static String deployPath() {
-        return data.get('deploy', {}).get('path', "")
+        String path = data.get('deploy', {}).get('path', ".")
+        return "./${path}"
     }
 
     static String pgbuild() {

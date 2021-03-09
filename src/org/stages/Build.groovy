@@ -16,6 +16,7 @@ class Build extends Base {
     }
 
     def body() {
+        Log.info(StepExecutor.shWithOutput("ls -la"))
         this.step("Sharing changelog on slack", {
             StepExecutor.env('ENVIRONMENT').tokenize(',').each { String env ->
                 ArrayList<String> changelog = Git.getChangelog(env)

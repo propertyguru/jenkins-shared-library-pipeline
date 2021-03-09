@@ -30,15 +30,18 @@ def call(body) {
         Blueprint.load()
         Slack.setup()
         new Checkout().execute()
-        new Build().execute()
-        StepExecutor.parallel([
-                "sonarqube"     : {
-                    new Sonarqube().execute()
-                },
-                "dockerimage"   : {
-                    new Docker().execute()
-                }
-        ])
+        // TODO: we can move this to states!
+        StepExecutor.dir("${Blueprint.deployPath()}", {
+            new Build().execute()
+            StepExecutor.parallel([
+                    "sonarqube"     : {
+                        new Sonarqube().execute()
+                    },
+                    "dockerimage"   : {
+                        new Docker().execute()
+                    }
+            ])
+        })
     })
 //    new Input("PR tests passed! Do you want to merge the PR?",
 //            "pr",
