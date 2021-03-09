@@ -14,7 +14,6 @@ class Sentry extends Base  {
         super()
         this.environment = environment
         this.stage = "Sentry - ${this.environment}"
-        this.description = "Sentry - ${this.environment}"
     }
 
     @Override

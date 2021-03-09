@@ -13,8 +13,6 @@ class Deploy extends Base {
     Deploy(String environment) {
         super()
         this.environment = environment
-        this.stage = "Deploy - ${this.environment}"
-        this.description = "Deploy - ${this.environment}"
     }
 
     @Override

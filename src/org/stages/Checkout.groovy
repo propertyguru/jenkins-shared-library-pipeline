@@ -1,8 +1,8 @@
 package org.stages
 
 import org.common.Blueprint
-import org.common.BuildArgs
 import org.common.Git
+import org.common.Log
 import org.common.StepExecutor
 
 class Checkout extends Base {
@@ -36,18 +36,15 @@ class Checkout extends Base {
 
         this.step("Loading extensions", {
             // we only load the changelog for 1 environment, production get the most priority, integration least!
-            extensions.add([$class: 'ChangelogToBranch', options: [
+            this.extensions.add([$class: 'ChangelogToBranch', options: [
                     compareRemote: 'origin', // it was refs
                     compareTarget: tag
             ]])
-            // we have few services sharing the repository.
-            // we store deployPath in blueprints to get the subpath in the repo.
-            // Checking out to subdir
-            extensions.add([$class: 'RelativeTargetDirectory', relativeTargetDir: Blueprint.deployPath()])
         })
 
+        Log.info(this.extensions as String)
         this.step("Checking out code", {
-            Git.checkout(Blueprint.repository(), extensions)
+            Git.checkout(Blueprint.repository(), this.extensions)
         })
 
     }

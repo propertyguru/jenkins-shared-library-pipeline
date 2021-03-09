@@ -1,10 +1,9 @@
 import org.GaugePipeline
-import org.Pipeline
 import org.common.BuildArgs
 import org.common.Context
 import org.common.Log
 import org.common.StepExecutor
-import org.common.slack.Slack
+import org.slack.Slack
 
 def call(body) {
 

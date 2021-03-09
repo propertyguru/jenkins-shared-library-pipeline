@@ -33,6 +33,7 @@ class DockerClient implements Serializable {
     }
 
     static void build(String name, String dockerfile="Dockerfile", String dockerArgs="", String target=null, String output=null) {
+        loginToDockerHub()
         try {
             String cmd = ""
             if (output != null) {

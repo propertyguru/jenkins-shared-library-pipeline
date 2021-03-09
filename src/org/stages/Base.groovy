@@ -1,25 +1,33 @@
 package org.stages
 
-import org.common.Blueprint
-import org.common.BuildArgs
 import org.common.Git
 import org.common.Log
 import org.common.StepExecutor
-import org.common.slack.Message
-import org.common.slack.Slack
-import org.common.slack.StageBlock
+import org.slack.MessageTemplate
+import org.slack.Slack
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+import org.slack.StageBlock
 
 abstract class Base implements Serializable {
     abstract String stage
-    StageBlock stageBlock
+    protected StageBlock stageBlock
+    protected Boolean test
+    protected Boolean skipSlack
 
-    Base() {}
-
-    void execute() {
+    Base(Boolean skipSlack = false) {
+        test = false
+        this.skipSlack = skipSlack
         this.stageBlock = new StageBlock()
-        this.stageBlock.addHeading(this.stage, "running")
-        Message.addStageBlock(this.stageBlock)
+    }
+
+    // variable test: this is just for debugging purposes. quite useful sometimes when you want to debug the pipeline
+    // without actually doing the checkout or deployment. Though it does sends message on slack!
+    void execute() {
+        if (!this.skipSlack) {
+            this.stageBlock.setStageName(this.stage)
+            this.stageBlock.setStatus("running")
+            MessageTemplate.stageBlocks.add(this.stageBlock)
+        }
         // TODO: need a way to skip the stage without getting the node.
         // this will improve the pipeline execution time too.
         // there are ways to do this, but I am looking for an alternate which doesn't make the code look ugly.
@@ -33,44 +41,57 @@ abstract class Base implements Serializable {
                     // its here because tests are not able to find this function
                     Utils.markStageSkippedForConditional(this.stage)
                 }
-                this.stageBlock.addHeading(this.stage, "skipped")
-                Slack.updateMessage()
+                if (!this.skipSlack) {
+                    this.stageBlock.setStatus("skipped")
+                    Slack.sendMessage()
+                }
             })
         } else {
             try {
                 StepExecutor.stage(this.stage, {
+                    if (!skipSlack) {
+                        this.stageBlock.setStatus("running")
+                        Slack.sendMessage()
+                    }
+                    // we only skip this line while running
                     this.body()
-
-                    this.stageBlock.addHeading(this.stage, "success")
-                    Slack.updateMessage()
+                    if (!skipSlack) {
+                        this.stageBlock.setStatus("success")
+                        Slack.sendMessage()
+                    }
                 })
             } catch (Exception e) {
-                if (BuildArgs.isPRJob()) {
-                    // TODO: add this function to git class
-                    StepExecutor.updatePRStatus(Blueprint.name(), Blueprint.repository(), StepExecutor.env("ghprbActualCommit"), "FAILURE")
+                if (!skipSlack) {
+                    this.stageBlock.setStatus("failed")
+                    Slack.sendMessage()
                 }
-                this.stageBlock.addHeading(this.stage, "failed")
-                Slack.updateMessage()
-                Log.error(e.toString())
+                Log.error("STAGE FUNCTION REPORTING: " + e.toString())
             }
         }
 
     }
 
     void step(String name, def closure) {
+        Map<String, Serializable> stepMessage = [:]
+        if (!skipSlack) {
+            this.stageBlock.addStep(name)
+            Slack.sendMessage()
+        }
         try {
             Git.updatePRStatus(this.stage, name, "PENDING")
-            this.stageBlock.addSteps(name)
-            Slack.updateMessage()
-            closure()
+            if (!test) {
+                closure()
+            }
             Git.updatePRStatus(this.stage, name, "SUCCESS")
         } catch (Exception e) {
             Git.updatePRStatus(this.stage, name, "FAILURE")
-            Message.addError("ERROR: ${e.toString()}}")
-            Slack.updateMessage()
+            if (!skipSlack) {
+                MessageTemplate.errorBlock = MessageTemplate.markdownText("ERROR: ${e.toString()}}")
+                Slack.sendMessage()
+            }
             Log.info("Step exception: ${name}")
             Log.info(e.printStackTrace())
-            Log.error(e.toString())
+            Log.error("STEP FUNCTION REPORTING: " + e.toString())
         }
     }
 

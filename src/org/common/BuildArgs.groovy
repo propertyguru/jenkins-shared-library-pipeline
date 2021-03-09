@@ -32,11 +32,7 @@ class BuildArgs {
     }
 
     static String jobType() {
-        if (jobName().startsWith("devtools-")) {
-            return jobName().split("/")[-1]
-        } else if (jobName().startsWith("devtoolsqa-")) {
-            return "qa"
-        }
+        return buildURL().split('/')[-2]
     }
 
     static String buildURL() {
